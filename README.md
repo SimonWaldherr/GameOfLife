@@ -1,5 +1,7 @@
 # Conway's Game of Life Implementations
 
+[![DOI](https://zenodo.org/badge/852361755.svg)](https://zenodo.org/doi/10.5281/zenodo.13685438)
+
 This Repository contains multiple implementations of Conway's Game of Life, each written in different programming languages. Each implementation follows the same basic logic for simulating the cellular automaton but demonstrates how different languages can approach the problem.
 
 ## Files
