@@ -10,6 +10,7 @@ This Repository contains multiple implementations of Conway's Game of Life, each
 - **`cgol.go`**: Implementation using the Go programming language.
 - **`cgol.java`**: Java-based Game of Life simulation.
 - **`cgol.js`**: Node.js implementation.
+    - there are also three implementations for the browser: [canvas](https://simonwaldherr.github.io/GameOfLife/cgol.js.canvas.html), [webgl](https://simonwaldherr.github.io/GameOfLife/cgol.js.webgl.html) and [wasm](https://simonwaldherr.github.io/GameOfLife/cgol.js.wasm.html) 
 - **`cgol.pl`**: Perl language implementation.
 - **`cgol.py`**: Python script for simulating the Game of Life.
 - **`cgol.rb`**: Ruby script implementation.
