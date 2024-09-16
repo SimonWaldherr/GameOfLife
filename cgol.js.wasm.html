@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Conway's Game of Life - WASM</title>
+    <style>
+        /* Remove default margins and hide scrollbars */
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            background-color: #000000;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <script src="wasm_exec.js"></script>
+    <script>
+        // Initialize the Go WASM environment
+        const go = new Go();
+        WebAssembly.instantiateStreaming(fetch("cgol.wasm"), go.importObject).then((result) => {
+            go.run(result.instance);
+        });
+    </script>
+</body>
+</html>

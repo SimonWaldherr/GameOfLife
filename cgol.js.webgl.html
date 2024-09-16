@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Conway's Game of Life - WebGL</title>
+    <style>
+        body {
+            margin: 0; /* Remove default margins */
+            overflow: hidden; /* Hide scrollbars */
+        }
+        canvas {
+            display: block;
+            background-color: #000;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="glCanvas"></canvas>
+    <script>
+        // Get the canvas element and initialize WebGL context
+        const canvas = document.getElementById('glCanvas');
+        const gl = canvas.getContext('webgl');
+
+        // Check for WebGL support
+        if (!gl) {
+            console.error('WebGL not supported');
+        }
+
+        // Configuration variables
+        const config = {
+            initialAliveProbability: 0.2,   // Probability that a cell is alive at start
+            maxGridSize: 512,               // Maximum grid size in pixels
+            gridWidth: null,                // Simulation grid width (set later)
+            gridHeight: null,               // Simulation grid height (set later)
+            aliveColor: [1.0, 1.0, 1.0, 1.0], // RGBA color for alive cells (white)
+            deadColor: [0.0, 0.0, 0.0, 1.0],  // RGBA color for dead cells (black)
+        };
+
+        let textures = [];
+        let framebuffers = [];
+
+        // Function to resize canvas and update related parameters
+        function resizeCanvas() {
+            // Set canvas size to match the window size
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            // Update grid size based on window size and maxGridSize
+            config.gridWidth = Math.min(canvas.width, config.maxGridSize);
+            config.gridHeight = Math.min(canvas.height, config.maxGridSize);
+
+            // Reinitialize textures, framebuffers, and the grid
+            initializeTexturesAndFramebuffers();
+            initializeGrid();
+
+            // Update viewport
+            gl.viewport(0, 0, canvas.width, canvas.height);
+        }
+
+        // Event listener for window resize
+        window.addEventListener('resize', resizeCanvas, false);
+
+        // Initial setup
+        resizeCanvas();
+
+        // Vertex Shader Source
+        const vertexShaderSource = `
+            attribute vec2 a_position;
+            attribute vec2 a_texcoord;
+            varying vec2 v_texcoord;
+
+            void main() {
+                gl_Position = vec4(a_position, 0.0, 1.0);
+                v_texcoord = a_texcoord;
+            }
+        `;
+
+        // Fragment Shader Source (implements Game of Life rules)
+        const fragmentShaderSource = `
+            precision mediump float;
+
+            varying vec2 v_texcoord;
+
+            uniform sampler2D u_texture;
+            uniform vec2 u_textureSize;
+
+            void main() {
+                vec2 onePixel = vec2(1.0, 1.0) / u_textureSize;
+                int neighbors = 0;
+
+                // Count alive neighbors
+                for (int x = -1; x <= 1; x++) {
+                    for (int y = -1; y <= 1; y++) {
+                        if (x == 0 && y == 0) continue;
+                        vec4 neighbor = texture2D(u_texture, v_texcoord + onePixel * vec2(float(x), float(y)));
+                        neighbors += int(neighbor.r);
+                    }
+                }
+
+                // Current cell state
+                float currentState = texture2D(u_texture, v_texcoord).r;
+                float newState;
+
+                // Apply Game of Life rules
+                if (currentState > 0.5) {
+                    if (neighbors < 2 || neighbors > 3) {
+                        newState = 0.0;  // Cell dies
+                    } else {
+                        newState = 1.0;  // Cell survives
+                    }
+                } else {
+                    if (neighbors == 3) {
+                        newState = 1.0;  // Cell is born
+                    } else {
+                        newState = 0.0;  // Cell remains dead
+                    }
+                }
+
+                gl_FragColor = vec4(newState, newState, newState, 1.0);
+            }
+        `;
+
+        // Compile a shader
+        function compileShader(type, source) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                console.error('Error compiling shader:', gl.getShaderInfoLog(shader));
+                return null;
+            }
+            return shader;
+        }
+
+        // Create a shader program
+        function createProgram(vertexSource, fragmentSource) {
+            const vertexShader = compileShader(gl.VERTEX_SHADER, vertexSource);
+            const fragmentShader = compileShader(gl.FRAGMENT_SHADER, fragmentSource);
+
+            const program = gl.createProgram();
+            gl.attachShader(program, vertexShader);
+            gl.attachShader(program, fragmentShader);
+            gl.linkProgram(program);
+
+            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                console.error('Error linking program:', gl.getProgramInfoLog(program));
+                return null;
+            }
+            return program;
+        }
+
+        // Create shader program and get attribute/uniform locations
+        const program = createProgram(vertexShaderSource, fragmentShaderSource);
+        const positionLocation = gl.getAttribLocation(program, 'a_position');
+        const texcoordLocation = gl.getAttribLocation(program, 'a_texcoord');
+        const textureLocation = gl.getUniformLocation(program, 'u_texture');
+        const textureSizeLocation = gl.getUniformLocation(program, 'u_textureSize');
+
+        // Vertex positions (two triangles covering the canvas)
+        const positions = new Float32Array([
+            -1, -1,
+             1, -1,
+            -1,  1,
+            -1,  1,
+             1, -1,
+             1,  1,
+        ]);
+
+        // Texture coordinates
+        const texcoords = new Float32Array([
+            0, 0,
+            1, 0,
+            0, 1,
+            0, 1,
+            1, 0,
+            1, 1,
+        ]);
+
+        // Create buffers and upload data
+        const positionBuffer = gl.createBuffer();
+        const texcoordBuffer = gl.createBuffer();
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, texcoords, gl.STATIC_DRAW);
+
+        // Create a texture
+        function createTexture(width, height) {
+            const texture = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+
+            // Allocate texture storage
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+
+            // Set texture parameters
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+            return texture;
+        }
+
+        // Create a framebuffer
+        function createFramebuffer(texture) {
+            const framebuffer = gl.createFramebuffer();
+            gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+
+            // Attach texture to framebuffer
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+
+            if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
+                console.error('Framebuffer is not complete:', gl.checkFramebufferStatus(gl.FRAMEBUFFER));
+            }
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            return framebuffer;
+        }
+
+        // Initialize textures and framebuffers
+        function initializeTexturesAndFramebuffers() {
+            // Delete old textures and framebuffers
+            if (textures.length > 0) {
+                textures.forEach(texture => gl.deleteTexture(texture));
+                framebuffers.forEach(fb => gl.deleteFramebuffer(fb));
+            }
+
+            // Create new textures and framebuffers
+            textures = [
+                createTexture(config.gridWidth, config.gridHeight),
+                createTexture(config.gridWidth, config.gridHeight),
+            ];
+
+            framebuffers = [
+                createFramebuffer(textures[0]),
+                createFramebuffer(textures[1]),
+            ];
+        }
+
+        // Initialize the simulation grid with random cells
+        function initializeGrid() {
+            const gridSize = config.gridWidth * config.gridHeight * 4;
+            const grid = new Uint8Array(gridSize);
+
+            for (let i = 0; i < gridSize; i += 4) {
+                const alive = Math.random() < config.initialAliveProbability ? 255 : 0;
+                grid[i] = alive;      // Red
+                grid[i + 1] = alive;  // Green
+                grid[i + 2] = alive;  // Blue
+                grid[i + 3] = 255;    // Alpha
+            }
+
+            gl.bindTexture(gl.TEXTURE_2D, textures[0]);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, config.gridWidth, config.gridHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, grid);
+        }
+
+        // Render function
+        function render() {
+            // Render to framebuffer
+            gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffers[1]);
+            gl.viewport(0, 0, config.gridWidth, config.gridHeight);
+
+            gl.useProgram(program);
+
+            // Set up position attribute
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            gl.enableVertexAttribArray(positionLocation);
+            gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+            // Set up texture coordinate attribute
+            gl.bindBuffer(gl.ARRAY_BUFFER, texcoordBuffer);
+            gl.enableVertexAttribArray(texcoordLocation);
+            gl.vertexAttribPointer(texcoordLocation, 2, gl.FLOAT, false, 0, 0);
+
+            // Set uniforms
+            gl.uniform1i(textureLocation, 0); // Texture unit 0
+            gl.uniform2f(textureSizeLocation, config.gridWidth, config.gridHeight);
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, textures[0]);
+
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+            // Swap textures and framebuffers
+            [textures[0], textures[1]] = [textures[1], textures[0]];
+            [framebuffers[0], framebuffers[1]] = [framebuffers[1], framebuffers[0]];
+
+            // Render to screen
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.viewport(0, 0, canvas.width, canvas.height);
+
+            gl.uniform1i(textureLocation, 0); // Texture unit 0
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, textures[1]);
+
+            gl.clear(gl.COLOR_BUFFER_BIT);
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+            requestAnimationFrame(render);
+        }
+
+        // Start the simulation
+        render();
+    </script>
+</body>
+</html>

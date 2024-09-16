@@ -34,18 +34,19 @@ To run each script, ensure the necessary runtime or interpreter for the specific
 Each script can be executed directly from the terminal as they contain the necessary [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix)) line to specify the interpreter. 
 Below are the commands to run the scripts in your terminal:
 
-- **R**: `./cgol.R`
-- **Dart**: `./cgol.dart`
-- **Go**: `./cgol.go`
-- **Java**: `./cgol.java` (Note: Java will be compiled and executed in one go)
-- **JavaScript (Node.js)**: `./cgol.js`
-- **Lua**: `./cgol.lua`
-- **Perl**: `./cgol.pl`
-- **Python**: `./cgol.py`
-- **Ruby**: `./cgol.rb`
-- **Rust**: `./cgol.rs`
-- **Bash**: `./cgol.sh`
-- **Swift**: `./cgol.swift`
+Language | run with | or
+---------|----------|-----
+**Go** | `./cgol.go` | `go run cgol.go`
+**Java** | `./cgol.java` | ```javac cgol.java && java cgol; rm cgol.class; exit```
+**JavaScript (Node.js)** | `./cgol.js` | `node cgol.js`
+**PHP** | `./cgol.php` | `php cgol.php`
+**Perl** | `./cgol.pl` | `perl cgol.pl`
+**Python** | `./cgol.py` | `python3 cgol.py`
+**R** | `./cgol.R` | `Rscript cgol.R`
+**Ruby** | `./cgol.rb` | `ruby cgol.rb`
+**Rust** | `./cgol.rs` | `cargo script cgol.rs`
+**Swift** | `./cgol.swift` | `swift cgol.swift`
+
 
 if you encounter any permission issues, you may need to make the script executable by running `chmod +x <script_name>` before executing the script.
 

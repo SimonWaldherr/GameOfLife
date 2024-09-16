@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Conway's Game of Life - Canvas</title>
+    <style>
+        /* Remove default margins and hide scrollbars */
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        canvas {
+            background-color: #000;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    <script>
+        // Get the canvas element and its 2D context
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Configuration variables
+        const config = {
+            cellSize: 10,                 // Size of each cell in pixels
+            initialAliveProbability: 0.2, // Probability that a cell is alive at the start
+            aliveColor: '#ffffff',           // Color of alive cells
+            deadColor: '#000000',         // Color of dead cells (optional)
+            fps: 15,                      // Frames per second
+        };
+
+        // Variables for grid dimensions
+        let width, height;
+        let grid;
+
+        // Initialize the canvas and grid based on window size
+        function initialize() {
+            // Resize canvas to fill the window
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            // Calculate grid dimensions
+            width = Math.floor(canvas.width / config.cellSize);
+            height = Math.floor(canvas.height / config.cellSize);
+
+            // Initialize the grid with random cells
+            grid = initializeGrid();
+        }
+
+        // Create the initial grid with random alive cells
+        function initializeGrid() {
+            let newGrid = [];
+            for (let y = 0; y < height; y++) {
+                let row = [];
+                for (let x = 0; x < width; x++) {
+                    // Randomly set cells to alive based on initialAliveProbability
+                    row.push(Math.random() < config.initialAliveProbability);
+                }
+                newGrid.push(row);
+            }
+            return newGrid;
+        }
+
+        // Count alive neighbors of a cell at (x, y)
+        function countNeighbors(grid, x, y) {
+            let count = 0;
+            // Loop through neighboring cells
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    // Skip the current cell
+                    if (dx === 0 && dy === 0) continue;
+                    // Calculate neighbor coordinates with wrapping
+                    let nx = (x + dx + width) % width;
+                    let ny = (y + dy + height) % height;
+                    if (grid[ny][nx]) count++;
+                }
+            }
+            return count;
+        }
+
+        // Compute the next state of the grid
+        function computeNextState(grid) {
+            let newGrid = [];
+            for (let y = 0; y < height; y++) {
+                let row = [];
+                for (let x = 0; x < width; x++) {
+                    let alive = grid[y][x];
+                    let neighbors = countNeighbors(grid, x, y);
+                    // Apply Game of Life rules
+                    if (alive) {
+                        row.push(neighbors === 2 || neighbors === 3);
+                    } else {
+                        row.push(neighbors === 3);
+                    }
+                }
+                newGrid.push(row);
+            }
+            return newGrid;
+        }
+
+        // Draw the grid on the canvas
+        function drawGrid(grid) {
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Loop through the grid cells
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    if (grid[y][x]) {
+                        // Draw alive cells
+                        ctx.fillStyle = config.aliveColor;
+                        ctx.fillRect(
+                            x * config.cellSize,
+                            y * config.cellSize,
+                            config.cellSize,
+                            config.cellSize
+                        );
+                    }
+                }
+            }
+        }
+
+        // Main game loop
+        function gameLoop() {
+            grid = computeNextState(grid);
+            drawGrid(grid);
+        }
+
+        // Start the simulation
+        function startSimulation() {
+            // Initialize grid and canvas
+            initialize();
+            // Clear any existing intervals
+            clearInterval(gameInterval);
+            // Set the game loop interval
+            gameInterval = setInterval(gameLoop, 1000 / config.fps);
+        }
+
+        // Variable to hold the game interval
+        let gameInterval;
+
+        // Event listener for window resize
+        window.addEventListener('resize', startSimulation);
+
+        // Start the simulation for the first time
+        startSimulation();
+    </script>
+</body>
+</html>
