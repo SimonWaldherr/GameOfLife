@@ -7,94 +7,79 @@ DENSITY=20  # Percentage of cells that start alive
 
 # Initialize the grid with random alive or dead cells
 initialize_grid() {
-  for ((y = 0; y < HEIGHT; y++)); do
-    for ((x = 0; x < WIDTH; x++)); do
-      # Generate a random number between 0 and 99
-      local rand=$((RANDOM % 100))
-      if ((rand < DENSITY)); then
-        grid[$y,$x]=1
-      else
-        grid[$y,$x]=0
-      fi
-    done
+  for ((i = 0; i < WIDTH * HEIGHT; i++)); do
+    grid[i]=$((RANDOM % 100 < DENSITY ? 1 : 0))
   done
-}
-
-# Count the number of alive neighbors around a given cell
-count_neighbors() {
-  local x="$1"
-  local y="$2"
-  local count=0
-
-  for dx in -1 0 1; do
-    for dy in -1 0 1; do
-      if [[ $dx -eq 0 && $dy -eq 0 ]]; then
-        continue  # Skip the current cell
-      fi
-
-      # Calculate neighbor coordinates with wrapping
-      local nx=$(((x + dx + WIDTH) % WIDTH))
-      local ny=$(((y + dy + HEIGHT) % HEIGHT))
-
-      # Check if the neighbor is alive
-      if [[ ${grid[$ny,$nx]} -eq 1 ]]; then
-        ((count++))
-      fi
-    done
-  done
-
-  echo "$count"
 }
 
 # Compute the next state of the grid based on the Game of Life rules
 compute_next_state() {
-  # Create a new grid to store the next state
-  declare -A new_grid
-
+  local x y index alive neighbors nx ny nidx count dx dy
+  new_grid=()
+  
   for ((y = 0; y < HEIGHT; y++)); do
     for ((x = 0; x < WIDTH; x++)); do
-      local alive="${grid[$y,$x]}"
-      local neighbors
-      neighbors=$(count_neighbors "$x" "$y")
+      index=$((y * WIDTH + x))
+      alive=${grid[index]}
+      count=0
+
+      # Inline neighbor counting
+      for ((dx = -1; dx <= 1; dx++)); do
+        for ((dy = -1; dy <= 1; dy++)); do
+          if ((dx == 0 && dy == 0)); then
+            continue  # Skip the current cell
+          fi
+          nx=$(( (x + dx + WIDTH) % WIDTH ))
+          ny=$(( (y + dy + HEIGHT) % HEIGHT ))
+          nidx=$((ny * WIDTH + nx))
+          ((count += grid[nidx]))
+        done
+      done
 
       # Apply Game of Life rules
-      if [[ $alive -eq 1 && ( $neighbors -eq 2 || $neighbors -eq 3 ) || $alive -eq 0 && $neighbors -eq 3 ]]; then
-        new_grid[$y,$x]=1
+      if ((alive == 1 && (count == 2 || count == 3) || alive == 0 && count == 3)); then
+        new_grid[index]=1
       else
-        new_grid[$y,$x]=0
+        new_grid[index]=0
       fi
     done
   done
 
-  # Copy new grid back to original grid array
-  for ((y = 0; y < HEIGHT; y++)); do
-    for ((x = 0; x < WIDTH; x++)); do
-      grid[$y,$x]=${new_grid[$y,$x]}
-    done
-  done
+  # Swap grids
+  grid=("${new_grid[@]}")
 }
 
 # Print the grid to the console
 print_grid() {
-  clear
+  local x y index output=""
+  # Move cursor to top-left without clearing the screen
+  printf "\033[H"
   for ((y = 0; y < HEIGHT; y++)); do
     for ((x = 0; x < WIDTH; x++)); do
-      if [[ ${grid[$y,$x]} -eq 1 ]]; then
-        printf "█"
+      index=$((y * WIDTH + x))
+      if ((grid[index] == 1)); then
+        output+="█"
       else
-        printf " "
+        output+=" "
       fi
     done
-    echo
+    output+="\n"
   done
+  # Print everything at once
+  printf "%b" "$output"
 }
 
 # Main execution block
-declare -A grid
+grid=()
 initialize_grid
+
+# Hide the cursor
+printf "\033[?25l"
+
+# Trap to show the cursor again on exit
+trap 'printf "\033[?25h"; exit' SIGINT SIGTERM
 
 while true; do
   print_grid
   compute_next_state
-  #sleep 0.1
 done
