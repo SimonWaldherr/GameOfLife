@@ -6,20 +6,22 @@ This Repository contains multiple implementations of Conway's Game of Life, each
 
 ## Files
 
-- **`cgol.R`**: R script implementation of the Game of Life.
+- **`cgol.c`**: Game of Life in C
+- **`cgol.dart`**: Dart language implementation.
 - **`cgol.go`**: Implementation using the Go programming language.
 - **`cgol.java`**: Java-based Game of Life simulation.
 - **`cgol.js`**: Node.js implementation.
     - there are also three implementations for the browser: [canvas](https://simonwaldherr.github.io/GameOfLife/cgol.js.canvas.html), [webgl](https://simonwaldherr.github.io/GameOfLife/cgol.js.webgl.html) and [wasm](https://simonwaldherr.github.io/GameOfLife/cgol.js.wasm.html) 
+- **`cgol.lua`**: Lua script implementation.
+- **`cgol.php`**: PHP implementation.
 - **`cgol.pl`**: Perl language implementation.
 - **`cgol.py`**: Python script for simulating the Game of Life.
+- **`cgol.R`**: R script implementation of the Game of Life.
 - **`cgol.rb`**: Ruby script implementation.
 - **`cgol.rs`**: Rust-based Game of Life simulation.
+- **`cgol.sh`**: Bash shell script implementation.
 - **`cgol.swift`**: Swift programming language implementation.
-- **`wip`**
-    - **`cgol.sh`**: Bash shell script implementation.
-    - **`cgol.lua`**: Lua script implementation.
-    - **`cgol.dart`**: Dart language implementation.
+- **`stop.sh`**: some implementations can't be stopped with ctrl+c, use this tool in such cases.
 
 ## Logic
 
