@@ -8,12 +8,12 @@ This Repository contains multiple implementations of Conway's Game of Life, each
 
 - **`cgol.c`**: Game of Life in C
 - **`cgol.dart`**: Dart language implementation.
-- **`cgol.go`**: Implementation using the Go programming language.
+- **`cgol.go`**: Implementation using the Go programming language. You can find a Version which runs on a Hub75-RGB-LED-Matrix at [github.com/SimonWaldherr/RGB-LED-Matrix](https://github.com/SimonWaldherr/RGB-LED-Matrix).
 - **`cgol.java`**: Java-based Game of Life simulation.
 - **`cgol.js`**: Node.js implementation.
     - there are also three implementations for the browser: [canvas](https://simonwaldherr.github.io/GameOfLife/cgol.js.canvas.html), [webgl](https://simonwaldherr.github.io/GameOfLife/cgol.js.webgl.html) and [wasm](https://simonwaldherr.github.io/GameOfLife/cgol.js.wasm.html) 
 - **`cgol.lua`**: Lua script implementation.
-- **`cgol.php`**: PHP implementation.
+- **`cgol.php`**: PHP implementation. You can find a PyGame variant at [github.com/SimonWaldherr/RGB-CGOL](https://github.com/SimonWaldherr/RGB-CGOL).
 - **`cgol.pl`**: Perl language implementation.
 - **`cgol.py`**: Python script for simulating the Game of Life.
 - **`cgol.R`**: R script implementation of the Game of Life.
