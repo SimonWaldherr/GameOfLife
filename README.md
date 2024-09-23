@@ -8,17 +8,17 @@ This Repository contains multiple implementations of Conway's Game of Life, each
 
 - **`cgol.c`**: Game of Life in C
 - **`cgol.dart`**: Dart language implementation.
-- **`cgol.go`**: Implementation using the Go programming language. You can find a Version which runs on a Hub75-RGB-LED-Matrix at [github.com/SimonWaldherr/RGB-LED-Matrix](https://github.com/SimonWaldherr/RGB-LED-Matrix).
+- **`cgol.go`**: Implementation using the Go programming language. A version with more features can be found [here](https://github.com/SimonWaldherr/cgolGo). You can find a Version which runs on a Hub75-RGB-LED-Matrix at [github.com/SimonWaldherr/RGB-LED-Matrix](https://github.com/SimonWaldherr/RGB-LED-Matrix).
 - **`cgol.java`**: Java-based Game of Life simulation.
 - **`cgol.js`**: Node.js implementation.
     - there are also three implementations for the browser: [canvas](https://simonwaldherr.github.io/GameOfLife/cgol.js.canvas.html), [webgl](https://simonwaldherr.github.io/GameOfLife/cgol.js.webgl.html) and [wasm](https://simonwaldherr.github.io/GameOfLife/cgol.js.wasm.html) 
 - **`cgol.lua`**: Lua script implementation.
-- **`cgol.php`**: PHP implementation. You can find a PyGame variant at [github.com/SimonWaldherr/RGB-CGOL](https://github.com/SimonWaldherr/RGB-CGOL).
+- **`cgol.php`**: PHP implementation.
 - **`cgol.pl`**: Perl language implementation.
-- **`cgol.py`**: Python script for simulating the Game of Life.
+- **`cgol.py`**: Python script for simulating the Game of Life. You can find a colorful [PyGame](https://www.pygame.org/) variant at [github.com/SimonWaldherr/RGB-CGOL](https://github.com/SimonWaldherr/RGB-CGOL).
 - **`cgol.R`**: R script implementation of the Game of Life.
 - **`cgol.rb`**: Ruby script implementation.
-- **`cgol.rs`**: Rust-based Game of Life simulation.
+- **`cgol.rs`**: Rust-based Game of Life simulation. A very old version is [here](https://github.com/SimonWaldherr/cgol.rs).
 - **`cgol.sh`**: Bash shell script implementation.
 - **`cgol.swift`**: Swift programming language implementation.
 - **`stop.sh`**: some implementations can't be stopped with ctrl+c, use this tool in such cases.
