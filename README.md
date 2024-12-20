@@ -39,20 +39,27 @@ Below are the commands to run the scripts in your terminal:
 
 Language | run with | or
 ---------|----------|-----
-**C** | `./cgol.c` |  
+**C**    | `./cgol.c` |  
 **Dart** | `./cgol.dart` | `dart cgol.dart`
-**Go** | `./cgol.go` | `go run cgol.go`
+**Go**   | `./cgol.go` | `go run cgol.go`
 **Java** | `./cgol.java` | ```javac cgol.java && java cgol; rm cgol.class; exit```
 **JavaScript (Node.js)** | `./cgol.js` | `node cgol.js`
-**PHP** | `./cgol.php` | `php cgol.php`
-**Lua** | `./cgol.lua` | `lua cgol.lua`
+**PHP**  | `./cgol.php` | `php cgol.php`
+**Lua**  | `./cgol.lua` | `lua cgol.lua`
 **Perl** | `./cgol.pl` | `perl cgol.pl`
 **Python** | `./cgol.py` | `python3 cgol.py`
-**R** | `./cgol.R` | `Rscript cgol.R`
+**R**    | `./cgol.R` | `Rscript cgol.R`
 **Ruby** | `./cgol.rb` | `ruby cgol.rb`
 **Rust** | `./cgol.rs` | `cargo script cgol.rs`
 **Shell/Bash** | `./cgol.sh` | `sh cgol.sh`
 **Swift** | `./cgol.swift` | `swift cgol.swift`
+**SCAD**  | `./cgol.scad.sh` | 
+
+
+In the case of OpenSCAD there is a special feature.  
+Several frames are calculated as PNG and then combined to form an animated GIF.  
+The cgol.scad.gif is available here:  
+![cgol.scad.gif](https://simonwaldherr.github.io/GameOfLife/cgol.scad.gif)
 
 
 if you encounter any permission issues, you may need to make the script executable by running `chmod +x <script_name>` before executing the script.
