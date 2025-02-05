@@ -7,19 +7,24 @@ This Repository contains multiple implementations of Conway's Game of Life, each
 ## Files
 
 - **`cgol.c`**: Game of Life in C
+- **`cgol.clj`**: Game of Life in Clojure
 - **`cgol.dart`**: Dart language implementation.
+- **`cgol.exs`**: GoL in Elixir.
 - **`cgol.go`**: Implementation using the Go programming language. A version with more features can be found [here](https://github.com/SimonWaldherr/cgolGo). You can find a Version which runs on a Hub75-RGB-LED-Matrix at [github.com/SimonWaldherr/RGB-LED-Matrix](https://github.com/SimonWaldherr/RGB-LED-Matrix).
 - **`cgol.java`**: Java-based Game of Life simulation.
 - **`cgol.js`**: Node.js implementation.
     - there are also three implementations for the browser: [canvas](https://simonwaldherr.github.io/GameOfLife/cgol.js.canvas.html), [webgl](https://simonwaldherr.github.io/GameOfLife/cgol.js.webgl.html) and [wasm](https://simonwaldherr.github.io/GameOfLife/cgol.js.wasm.html) 
 - **`cgol.lua`**: Lua script implementation.
+- **`cgol.nim`**: in Nim.
 - **`cgol.php`**: PHP implementation.
 - **`cgol.pl`**: Perl language implementation.
 - **`cgol.py`**: Python script for simulating the Game of Life. You can find a colorful [PyGame](https://www.pygame.org/) variant at [github.com/SimonWaldherr/RGB-CGOL](https://github.com/SimonWaldherr/RGB-CGOL).
 - **`cgol.R`**: R script implementation of the Game of Life.
 - **`cgol.rb`**: Ruby script implementation.
 - **`cgol.rs`**: Rust-based Game of Life simulation. A very old version is [here](https://github.com/SimonWaldherr/cgol.rs).
+- **`cgol.scad`**: run cgol.scad.sh to generate a Game of Life GIF with OpenSCAD.
 - **`cgol.sh`**: Bash shell script implementation.
+- **`cgol.sql.sh`**: calculate Game of Life with the help of a SQLite database.
 - **`cgol.swift`**: Swift programming language implementation.
 - **`stop.sh`**: some implementations can't be stopped with ctrl+c, use this tool in such cases.
 
@@ -54,6 +59,7 @@ Language | run with | or
 **Shell/Bash** | `./cgol.sh` | `sh cgol.sh`
 **Swift** | `./cgol.swift` | `swift cgol.swift`
 **SCAD**  | `./cgol.scad.sh` | 
+**SQLite**  | `./cgol.sql.sh` | 
 
 
 In the case of OpenSCAD there is a special feature.  
