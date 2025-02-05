@@ -15,6 +15,7 @@ This Repository contains multiple implementations of Conway's Game of Life, each
 - **`cgol.js`**: Node.js implementation.
     - there are also three implementations for the browser: [canvas](https://simonwaldherr.github.io/GameOfLife/cgol.js.canvas.html), [webgl](https://simonwaldherr.github.io/GameOfLife/cgol.js.webgl.html) and [wasm](https://simonwaldherr.github.io/GameOfLife/cgol.js.wasm.html) 
 - **`cgol.lua`**: Lua script implementation.
+- **`cgol.lualatex.tex`**: LuaLaTeX to generate a [Game-of-Life-PDF](https://simonwaldherr.github.io/GameOfLife/cgol.lualatex.pdf).
 - **`cgol.nim`**: in Nim.
 - **`cgol.php`**: PHP implementation.
 - **`cgol.pl`**: Perl language implementation.
@@ -51,6 +52,7 @@ Language | run with | or
 **JavaScript (Node.js)** | `./cgol.js` | `node cgol.js`
 **PHP**  | `./cgol.php` | `php cgol.php`
 **Lua**  | `./cgol.lua` | `lua cgol.lua`
+**LuaLaTeX**  |  | `lualatex cgol.lualatex.tex`
 **Perl** | `./cgol.pl` | `perl cgol.pl`
 **Python** | `./cgol.py` | `python3 cgol.py`
 **R**    | `./cgol.R` | `Rscript cgol.R`
