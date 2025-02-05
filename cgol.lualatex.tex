@@ -1,0 +1,147 @@
+\documentclass[a5paper,landscape]{article}
+% Set page size and margins: full-page DIN A5 in landscape mode without headers/footers.
+\usepackage[papersize={148mm,210mm},margin=0pt,noheadfoot]{geometry}
+\usepackage{tikz}      % For drawing the grid and cells
+\usepackage{luacode}   % To embed Lua code in LaTeX
+\usepackage{pgffor}    % To loop over pages/frames
+
+\begin{luacode*}
+-- Define grid dimensions: 30 rows and 50 columns
+local rows, cols = 30, 50
+
+-- Calculate the paper dimensions in points (pt):
+-- 1 mm ≈ 2.8453 pt. The paper dimensions are based on the geometry settings.
+local paperWidth  = 210 * 2.8453   -- Width of the paper in points (approx. 597.51 pt)
+local paperHeight = 148 * 2.8453   -- Height of the paper in points (approx. 421.26 pt)
+
+-- Initialize the random number generator with the current time as seed.
+-- This ensures that each run produces a different random pattern.
+math.randomseed(os.time())
+
+------------------------------------------------------------
+-- Function: init_random(prob)
+-- Purpose: Initialize the grid with a random state.
+-- Input: prob - the probability that a cell starts as "alive" (default 0.2 or 20%).
+-- Output: grid - a 2D table (array) representing the grid.
+------------------------------------------------------------
+function init_random(prob)
+  prob = prob or 0.2  -- Set default probability if none is provided.
+  local grid = {}     -- Create an empty table for the grid.
+  
+  -- Loop over each row
+  for i = 1, rows do
+    grid[i] = {}  -- Initialize the row as an empty table.
+    -- Loop over each column in the current row
+    for j = 1, cols do
+      -- Set cell value to 1 (alive) if a random number is less than prob, else 0 (dead)
+      grid[i][j] = (math.random() < prob) and 1 or 0
+    end
+  end
+  return grid  -- Return the initialized grid.
+end
+
+------------------------------------------------------------
+-- Function: get_cell(state, i, j)
+-- Purpose: Return the value of the cell at position (i, j) using toroidal wrapping.
+-- Input: state - the current grid state; i, j - indices of the cell.
+-- Output: Value of the cell (0 or 1).
+------------------------------------------------------------
+function get_cell(state, i, j)
+  -- Wrap the row index around if it goes out of bounds
+  local i_wrapped = ((i - 1) % rows) + 1
+  -- Wrap the column index around if it goes out of bounds
+  local j_wrapped = ((j - 1) % cols) + 1
+  return state[i_wrapped][j_wrapped]
+end
+
+------------------------------------------------------------
+-- Function: evolve(state)
+-- Purpose: Compute the next generation of the grid based on Conway's Game of Life rules.
+-- Input: state - the current grid state.
+-- Output: new_state - the grid state for the next generation.
+------------------------------------------------------------
+function evolve(state)
+  local new_state = {}  -- Create an empty table for the new state.
+  -- Loop through each cell in the grid
+  for i = 1, rows do
+    new_state[i] = {}   -- Initialize the row for the new state.
+    for j = 1, cols do
+      local neighbors = 0  -- Count of live neighboring cells.
+      -- Loop over the 3x3 block around the cell (i, j)
+      for di = -1, 1 do
+        for dj = -1, 1 do
+          if not (di == 0 and dj == 0) then  -- Exclude the cell itself.
+            neighbors = neighbors + get_cell(state, i + di, j + dj)
+          end
+        end
+      end
+      
+      -- Apply Conway's Game of Life rules:
+      -- If the cell is alive, it survives only with 2 or 3 neighbors.
+      if state[i][j] == 1 then
+        new_state[i][j] = (neighbors == 2 or neighbors == 3) and 1 or 0
+      else
+        -- If the cell is dead, it becomes alive only with exactly 3 neighbors.
+        new_state[i][j] = (neighbors == 3) and 1 or 0
+      end
+    end
+  end
+  return new_state  -- Return the computed next generation.
+end
+
+------------------------------------------------------------
+-- Function: draw_gameoflife(iter, state)
+-- Purpose: Draw the current generation of the grid and evolve it if needed.
+-- Input: iter - the current iteration number; state - current grid state.
+-- Output: Returns the (possibly updated) grid state for use on the next page.
+------------------------------------------------------------
+function draw_gameoflife(iter, state)
+  -- If this is not the first frame, evolve the state to the next generation.
+  if iter > 0 then
+    state = evolve(state)
+  end
+  
+  -- Calculate the width and height of each cell.
+  -- Multiplying by factors (0.988 and 0.999) slightly reduces the cell sizes
+  -- to prevent the drawing from overlapping the paper boundaries.
+  local cellWidth  = paperWidth / cols * 0.988
+  local cellHeight = paperHeight / rows * 0.999
+  
+  local code = {}  -- Create a table to store the TikZ drawing commands.
+  table.insert(code, "\\begin{tikzpicture}[x=1pt,y=1pt]")
+  
+  -- Loop through every cell to draw the grid.
+  for i = 1, rows do
+    for j = 1, cols do
+      local x = (j - 1) * cellWidth  -- Calculate the x-coordinate of the cell.
+      local y = (i - 1) * cellHeight -- Calculate the y-coordinate of the cell.
+      -- Draw the cell's border in gray.
+      table.insert(code, string.format("\\draw[gray] (%.2f,%.2f) rectangle ++(%.2fpt,%.2fpt);", x, y, cellWidth, cellHeight))
+      
+      -- If the cell is alive (value 1), fill it with black.
+      if state[i][j] == 1 then
+        table.insert(code, string.format("\\fill[black] (%.2f,%.2f) rectangle ++(%.2fpt,%.2fpt);", x, y, cellWidth, cellHeight))
+      end
+    end
+  end
+  
+  table.insert(code, "\\end{tikzpicture}")  -- End the TikZ picture.
+  -- Output the complete TikZ code as one continuous string.
+  tex.sprint(table.concat(code, ""))
+  
+  return state  -- Return the updated grid state for the next iteration.
+end
+\end{luacode*}
+
+\begin{document}
+% Initialize the grid once at the beginning with a random state.
+\directlua{state = init_random(0.2)}
+
+% Generate the pages (frames). Here we create frames from 0 to 50.
+\foreach \i in {0,...,50}{
+  % For each frame, call the Lua function to draw the grid.
+  % The state is updated and passed along for evolution.
+  \noindent\directlua{state = draw_gameoflife(\i, state)}
+  \newpage  % Move to the next page/frame.
+}
+\end{document}
