@@ -46,6 +46,7 @@ Below are the commands to run the scripts in your terminal:
 Language | run with | or
 ---------|----------|-----
 **C**    | `./cgol.c` |  
+**Cobol**|  | `cobc -x cgol.cob; ./cgol`  
 **Dart** | `./cgol.dart` | `dart cgol.dart`
 **Go**   | `./cgol.go` | `go run cgol.go`
 **Java** | `./cgol.java` | ```javac cgol.java && java cgol; rm cgol.class; exit```
@@ -53,6 +54,7 @@ Language | run with | or
 **PHP**  | `./cgol.php` | `php cgol.php`
 **Lua**  | `./cgol.lua` | `lua cgol.lua`
 **LuaLaTeX**  |  | `lualatex cgol.lualatex.tex`
+**OCaml** | `./cgol.ml` |  
 **Perl** | `./cgol.pl` | `perl cgol.pl`
 **Python** | `./cgol.py` | `python3 cgol.py`
 **R**    | `./cgol.R` | `Rscript cgol.R`
@@ -62,6 +64,7 @@ Language | run with | or
 **Swift** | `./cgol.swift` | `swift cgol.swift`
 **SCAD**  | `./cgol.scad.sh` | 
 **SQLite**  | `./cgol.sql.sh` | 
+**Zig**  |  | `zig run cgol.zig`  
 
 
 In the case of OpenSCAD there is a special feature.  
