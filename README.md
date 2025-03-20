@@ -6,17 +6,21 @@ This Repository contains multiple implementations of Conway's Game of Life, each
 
 ## Files
 
+- **`cgol.awk`**: Game of Life in Awk
 - **`cgol.c`**: Game of Life in C
 - **`cgol.clj`**: Game of Life in Clojure
+- **`cgol.cob`**: Game of Life in Cobol
 - **`cgol.dart`**: Dart language implementation.
 - **`cgol.exs`**: GoL in Elixir.
 - **`cgol.go`**: Implementation using the Go programming language. A version with more features can be found [here](https://github.com/SimonWaldherr/cgolGo). You can find a Version which runs on a Hub75-RGB-LED-Matrix at [github.com/SimonWaldherr/RGB-LED-Matrix](https://github.com/SimonWaldherr/RGB-LED-Matrix).
 - **`cgol.java`**: Java-based Game of Life simulation.
 - **`cgol.js`**: Node.js implementation.
     - there are also three implementations for the browser: [canvas](https://simonwaldherr.github.io/GameOfLife/cgol.js.canvas.html), [webgl](https://simonwaldherr.github.io/GameOfLife/cgol.js.webgl.html) and [wasm](https://simonwaldherr.github.io/GameOfLife/cgol.js.wasm.html) 
+- **`cgol.lisp`**: Game of Life in Lisp
 - **`cgol.lua`**: Lua script implementation.
 - **`cgol.lualatex.tex`**: LuaLaTeX to generate a [Game-of-Life-PDF](https://simonwaldherr.github.io/GameOfLife/cgol.lualatex.pdf).
-- **`cgol.nim`**: in Nim.
+- **`cgol.ml`**: CGoL in OCaml.
+- **`cgol.nim`**: CGoL in Nim.
 - **`cgol.php`**: PHP implementation.
 - **`cgol.pl`**: Perl language implementation.
 - **`cgol.py`**: Python script for simulating the Game of Life. You can find a colorful [PyGame](https://www.pygame.org/) variant at [github.com/SimonWaldherr/RGB-CGOL](https://github.com/SimonWaldherr/RGB-CGOL).
@@ -27,6 +31,7 @@ This Repository contains multiple implementations of Conway's Game of Life, each
 - **`cgol.sh`**: Bash shell script implementation.
 - **`cgol.sql.sh`**: calculate Game of Life with the help of a SQLite database.
 - **`cgol.swift`**: Swift programming language implementation.
+- **`cgol.zig`**: Zig implementation.
 - **`stop.sh`**: some implementations can't be stopped with ctrl+c, use this tool in such cases.
 
 ## Logic
