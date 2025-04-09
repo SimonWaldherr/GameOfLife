@@ -48,28 +48,30 @@ To run each script, ensure the necessary runtime or interpreter for the specific
 Each script can be executed directly from the terminal as they contain the necessary [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix)) line to specify the interpreter. 
 Below are the commands to run the scripts in your terminal:
 
-Language | run with | or
----------|----------|-----
-**C**    | `./cgol.c` |  
-**Cobol**|  | `cobc -x cgol.cob; ./cgol`  
-**Dart** | `./cgol.dart` | `dart cgol.dart`
-**Go**   | `./cgol.go` | `go run cgol.go`
-**Java** | `./cgol.java` | ```javac cgol.java && java cgol; rm cgol.class; exit```
-**JavaScript (Node.js)** | `./cgol.js` | `node cgol.js`
-**PHP**  | `./cgol.php` | `php cgol.php`
-**Lua**  | `./cgol.lua` | `lua cgol.lua`
-**LuaLaTeX**  |  | `lualatex cgol.lualatex.tex`
-**OCaml** | `./cgol.ml` |  
-**Perl** | `./cgol.pl` | `perl cgol.pl`
-**Python** | `./cgol.py` | `python3 cgol.py`
-**R**    | `./cgol.R` | `Rscript cgol.R`
-**Ruby** | `./cgol.rb` | `ruby cgol.rb`
-**Rust** | `./cgol.rs` | `cargo script cgol.rs`
+Language | run with        | or
+---------|-----------------|-----
+**Awk**  | `./cgol.awk`    | `awk -f cgol.awk`
+**C**    | `./cgol.c`      |   
+**Clojure** | `./cgol.clj` |  
+**Cobol**|                 | `cobc -x cgol.cob; ./cgol`  
+**Dart** | `./cgol.dart`   | `dart cgol.dart`
+**Go**   | `./cgol.go`     | `go run cgol.go`
+**Java** | `./cgol.java`   | `javac cgol.java && java cgol; rm cgol.class; exit`
+**JavaScript (Node.js)**   | `./cgol.js` | `node cgol.js`
+**PHP**  | `./cgol.php`    | `php cgol.php`
+**Lua**  | `./cgol.lua`    | `lua cgol.lua`
+**LuaLaTeX**  |            | `lualatex cgol.lualatex.tex`
+**OCaml** | `./cgol.ml`    | 
+**Perl** | `./cgol.pl`     | `perl cgol.pl`
+**Python** | `./cgol.py`   | `python3 cgol.py`
+**R**    | `./cgol.R`      | `Rscript cgol.R`
+**Ruby** | `./cgol.rb`     | `ruby cgol.rb`
+**Rust** | `./cgol.rs`     | `cargo script cgol.rs`
 **Shell/Bash** | `./cgol.sh` | `sh cgol.sh`
 **Swift** | `./cgol.swift` | `swift cgol.swift`
-**SCAD**  | `./cgol.scad.sh` | 
-**SQLite**  | `./cgol.sql.sh` | 
-**Zig**  |  | `zig run cgol.zig`  
+**SCAD** | `./cgol.scad.sh` | 
+**SQLite** | `./cgol.sql.sh` | 
+**Zig**  |                 | `zig run cgol.zig`  
 
 
 In the case of OpenSCAD there is a special feature.  
