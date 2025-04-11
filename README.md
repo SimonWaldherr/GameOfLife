@@ -11,6 +11,7 @@ This Repository contains multiple implementations of Conway's Game of Life, each
 - **`cgol.clj`**: Game of Life in Clojure
 - **`cgol.cob`**: Game of Life in Cobol
 - **`cgol.dart`**: Dart language implementation.
+- **`cgol.erl`**: Erlang implementation of GoL.
 - **`cgol.exs`**: GoL in Elixir.
 - **`cgol.go`**: Implementation using the Go programming language. A version with more features can be found [here](https://github.com/SimonWaldherr/cgolGo). You can find a Version which runs on a Hub75-RGB-LED-Matrix at [github.com/SimonWaldherr/RGB-LED-Matrix](https://github.com/SimonWaldherr/RGB-LED-Matrix).
 - **`cgol.java`**: Java-based Game of Life simulation.
@@ -55,6 +56,7 @@ Language | run with        | or
 **Clojure** | `./cgol.clj` |  
 **Cobol**|                 | `cobc -x cgol.cob; ./cgol`  
 **Dart** | `./cgol.dart`   | `dart cgol.dart`
+**Erlang** |               | `erlc cgol.erl; erl -noshell -s cgol start -s init stop`
 **Go**   | `./cgol.go`     | `go run cgol.go`
 **Java** | `./cgol.java`   | `javac cgol.java && java cgol; rm cgol.class; exit`
 **JavaScript (Node.js)**   | `./cgol.js` | `node cgol.js`
