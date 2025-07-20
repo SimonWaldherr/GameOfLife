@@ -32,6 +32,7 @@ This Repository contains multiple implementations of Conway's Game of Life, each
 - **`cgol.sh`**: Bash shell script implementation.
 - **`cgol.sql.sh`**: calculate Game of Life with the help of a SQLite database.
 - **`cgol.swift`**: Swift programming language implementation.
+- **`cgol.tcl`**: Tcl (Tool command language) implementation.
 - **`cgol.zig`**: Zig implementation.
 - **`stop.sh`**: some implementations can't be stopped with ctrl+c, use this tool in such cases.
 
