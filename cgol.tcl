@@ -1,28 +1,31 @@
 #!/usr/bin/env tclsh
 
-# Rastergröße festlegen
+# Constants for grid size and density
 set width 50
 set height 30
+set density 0.2
 
-# Zufällige Startkonfiguration
+# Global array for the grid
 array set grid {}
-for {set i 0} {$i < $height} {incr i} {
-    for {set j 0} {$j < $width} {incr j} {
-        set grid($i,$j) [expr {int(rand() * 3) == 0 ? 1 : 0}]
+
+# Initialize the grid with random alive or dead cells
+proc initialize_grid {} {
+    global grid width height density
+    for {set y 0} {$y < $height} {incr y} {
+        for {set x 0} {$x < $width} {incr x} {
+            set grid($y,$x) [expr {rand() < $density ? 1 : 0}]
+        }
     }
 }
 
-# Anzahl der Iterationen (Generationen)
-set generations 5000
-
-# Funktion zur Anzeige des Gitters
-proc display_grid {} {
+# Print the grid to the console
+proc print_grid {} {
     global grid width height
-    # ANSI Escape Code zum Löschen des Bildschirms
-    puts "\033\[2J\033\[H"
-    for {set i 0} {$i < $height} {incr i} {
-        for {set j 0} {$j < $width} {incr j} {
-            if {$grid($i,$j) == 1} {
+    # ANSI escape code to clear screen and move cursor to top-left
+    puts -nonewline "\033\[H\033\[2J"
+    for {set y 0} {$y < $height} {incr y} {
+        for {set x 0} {$x < $width} {incr x} {
+            if {$grid($y,$x) == 1} {
                 puts -nonewline "█"
             } else {
                 puts -nonewline " "
@@ -30,56 +33,47 @@ proc display_grid {} {
         }
         puts ""
     }
+    flush stdout
 }
 
-# Funktion zum Zählen der Nachbarn
-proc count_neighbors {x y} {
+# Count alive neighbors for a cell at (y, x) with toroidal wrapping
+proc count_neighbors {y x} {
     global grid width height
     set count 0
-    for {set dx -1} {$dx <= 1} {incr dx} {
-        for {set dy -1} {$dy <= 1} {incr dy} {
-            if {$dx == 0 && $dy == 0} {
-                continue
-            }
-            set nx [expr {$x + $dx}]
-            set ny [expr {$y + $dy}]
-            if {$nx >= 0 && $nx < $height && $ny >= 0 && $ny < $width} {
-                incr count $grid($nx,$ny)
-            }
+    for {set dy -1} {$dy <= 1} {incr dy} {
+        for {set dx -1} {$dx <= 1} {incr dx} {
+            if {$dx == 0 && $dy == 0} continue
+            set ny [expr {($y + $dy + $height) % $height}]
+            set nx [expr {($x + $dx + $width) % $width}]
+            if {$grid($ny,$nx)} { incr count }
         }
     }
     return $count
 }
 
-# Hauptschleife
-for {set gen 0} {$gen < $generations} {incr gen} {
-    puts "Generation: $gen"
-    display_grid
-
-    # Nächste Generation vorbereiten
-    array unset next_grid;
-    for {set i 0} {$i < $height} {incr i} {
-        for {set j 0} {$j < $width} {incr j} {
-            set neighbors [count_neighbors $i $j]
-            if {$grid($i,$j) == 1} {
-                if {$neighbors == 2 || $neighbors == 3} {
-                    set next_grid($i,$j) 1
-                } else {
-                    set next_grid($i,$j) 0
-                }
+# --- Main execution loop ---
+initialize_grid
+while {1} {
+    print_grid
+    
+    # Compute the next generation into a temporary array
+    array set new_grid {}
+    for {set y 0} {$y < $height} {incr y} {
+        for {set x 0} {$x < $width} {incr x} {
+            set alive $grid($y,$x)
+            set neighbors [count_neighbors $y $x]
+            if {($alive && ($neighbors == 2 || $neighbors == 3)) || (!$alive && $neighbors == 3)} {
+                set new_grid($y,$x) 1
             } else {
-                if {$neighbors == 3} {
-                    set next_grid($i,$j) 1
-                } else {
-                    set next_grid($i,$j) 0
-                }
+                set new_grid($y,$x) 0
             }
         }
     }
-
-    # Aktualisieren zur nächsten Generation
-    array set grid [array get next_grid]
-
-    # Pause zwischen den Generationen
-    after 100
+    
+    # Update grid for the next iteration
+    array set grid [array get new_grid]
+    
+    # Pause between generations (100ms).
+    # 'exec' is used for portability on Unix-like systems.
+    exec sleep 0.1
 }
