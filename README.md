@@ -6,19 +6,35 @@ This Repository contains multiple implementations of Conway's Game of Life, each
 
 ## Files
 
-- **`cgol.R`**: R script implementation of the Game of Life.
-- **`cgol.go`**: Implementation using the Go programming language.
+- **`cgol.awk`**: Game of Life in Awk
+- **`cgol.c`**: Game of Life in C
+- **`cgol.clj`**: Game of Life in Clojure
+- **`cgol.cob`**: Game of Life in Cobol
+- **`cgol.dart`**: Dart language implementation.
+- **`cgol.erl`**: Erlang implementation of GoL.
+- **`cgol.exs`**: GoL in Elixir.
+- **`cgol.go`**: Implementation using the Go programming language. A version with more features can be found [here](https://github.com/SimonWaldherr/cgolGo). You can find a Version which runs on a Hub75-RGB-LED-Matrix at [github.com/SimonWaldherr/RGB-LED-Matrix](https://github.com/SimonWaldherr/RGB-LED-Matrix).
 - **`cgol.java`**: Java-based Game of Life simulation.
 - **`cgol.js`**: Node.js implementation.
+    - there are also three implementations for the browser: [canvas](https://simonwaldherr.github.io/GameOfLife/cgol.js.canvas.html), [webgl](https://simonwaldherr.github.io/GameOfLife/cgol.js.webgl.html) and [wasm](https://simonwaldherr.github.io/GameOfLife/cgol.js.wasm.html) 
+- **`cgol.lisp`**: Game of Life in Lisp
+- **`cgol.lua`**: Lua script implementation.
+- **`cgol.lualatex.tex`**: LuaLaTeX to generate a [Game-of-Life-PDF](https://simonwaldherr.github.io/GameOfLife/cgol.lualatex.pdf).
+- **`cgol.ml`**: CGoL in OCaml.
+- **`cgol.nim`**: CGoL in Nim.
+- **`cgol.php`**: PHP implementation.
 - **`cgol.pl`**: Perl language implementation.
-- **`cgol.py`**: Python script for simulating the Game of Life.
+- **`cgol.py`**: Python script for simulating the Game of Life. You can find a colorful [PyGame](https://www.pygame.org/) variant at [github.com/SimonWaldherr/RGB-CGOL](https://github.com/SimonWaldherr/RGB-CGOL).
+- **`cgol.R`**: R script implementation of the Game of Life.
 - **`cgol.rb`**: Ruby script implementation.
-- **`cgol.rs`**: Rust-based Game of Life simulation.
+- **`cgol.rs`**: Rust-based Game of Life simulation. A very old version is [here](https://github.com/SimonWaldherr/cgol.rs).
+- **`cgol.scad`**: run cgol.scad.sh to generate a Game of Life GIF with OpenSCAD.
+- **`cgol.sh`**: Bash shell script implementation.
+- **`cgol.sql.sh`**: calculate Game of Life with the help of a SQLite database.
 - **`cgol.swift`**: Swift programming language implementation.
-- **`wip`**
-    - **`cgol.sh`**: Bash shell script implementation.
-    - **`cgol.lua`**: Lua script implementation.
-    - **`cgol.dart`**: Dart language implementation.
+- **`cgol.tcl`**: Tcl (Tool command language) implementation.
+- **`cgol.zig`**: Zig implementation.
+- **`stop.sh`**: some implementations can't be stopped with ctrl+c, use this tool in such cases.
 
 ## Logic
 
@@ -34,18 +50,37 @@ To run each script, ensure the necessary runtime or interpreter for the specific
 Each script can be executed directly from the terminal as they contain the necessary [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix)) line to specify the interpreter. 
 Below are the commands to run the scripts in your terminal:
 
-Language | run with | or
----------|----------|-----
-**Go** | `./cgol.go` | `go run cgol.go`
-**Java** | `./cgol.java` | ```javac cgol.java && java cgol; rm cgol.class; exit```
-**JavaScript (Node.js)** | `./cgol.js` | `node cgol.js`
-**PHP** | `./cgol.php` | `php cgol.php`
-**Perl** | `./cgol.pl` | `perl cgol.pl`
-**Python** | `./cgol.py` | `python3 cgol.py`
-**R** | `./cgol.R` | `Rscript cgol.R`
-**Ruby** | `./cgol.rb` | `ruby cgol.rb`
-**Rust** | `./cgol.rs` | `cargo script cgol.rs`
+Language | run with        | or
+---------|-----------------|-----
+**Awk**  | `./cgol.awk`    | `awk -f cgol.awk`
+**C**    | `./cgol.c`      |   
+**Clojure** | `./cgol.clj` |  
+**Cobol**|                 | `cobc -x cgol.cob; ./cgol`  
+**Dart** | `./cgol.dart`   | `dart cgol.dart`
+**Erlang** |               | `erlc cgol.erl; erl -noshell -s cgol start -s init stop`
+**Go**   | `./cgol.go`     | `go run cgol.go`
+**Java** | `./cgol.java`   | `javac cgol.java && java cgol; rm cgol.class; exit`
+**JavaScript (Node.js)**   | `./cgol.js` | `node cgol.js`
+**PHP**  | `./cgol.php`    | `php cgol.php`
+**Lua**  | `./cgol.lua`    | `lua cgol.lua`
+**LuaLaTeX**  |            | `lualatex cgol.lualatex.tex`
+**OCaml** | `./cgol.ml`    | 
+**Perl** | `./cgol.pl`     | `perl cgol.pl`
+**Python** | `./cgol.py`   | `python3 cgol.py`
+**R**    | `./cgol.R`      | `Rscript cgol.R`
+**Ruby** | `./cgol.rb`     | `ruby cgol.rb`
+**Rust** | `./cgol.rs`     | `cargo script cgol.rs`
+**Shell/Bash** | `./cgol.sh` | `sh cgol.sh`
 **Swift** | `./cgol.swift` | `swift cgol.swift`
+**SCAD** | `./cgol.scad.sh` | 
+**SQLite** | `./cgol.sql.sh` | 
+**Zig**  |                 | `zig run cgol.zig`  
+
+
+In the case of OpenSCAD there is a special feature.  
+Several frames are calculated as PNG and then combined to form an animated GIF.  
+The cgol.scad.gif is available here:  
+![cgol.scad.gif](https://simonwaldherr.github.io/GameOfLife/cgol.scad.gif)
 
 
 if you encounter any permission issues, you may need to make the script executable by running `chmod +x <script_name>` before executing the script.

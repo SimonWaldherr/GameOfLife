@@ -1,0 +1,106 @@
+#!/usr/bin/env wish
+
+# cgol.tk: Conway's Game of Life in Tcl/Tk
+
+# Configuration
+set width 50
+set height 30
+set cellSize 15
+set density 0.2
+set delay 100;
+
+# Global State
+array set grid {}  ; # Holds the state (1=alive, 0=dead)
+array set rects {} ; # Holds the canvas rectangle IDs for each cell
+
+# UI Setup
+wm title . "Conway's Game of Life"
+set canvasWidth [expr {$width * $cellSize}]
+set canvasHeight [expr {$height * $cellSize}]
+pack [canvas .c -width $canvasWidth -height $canvasHeight -bg "black"]
+
+# Procedures
+
+# Initializes the grid with random values
+proc initialize_grid {} {
+    global grid width height density
+    for {set y 0} {$y < $height} {incr y} {
+        for {set x 0} {$x < $width} {incr x} {
+            set grid($y,$x) [expr {rand() < $density}]
+        }
+    }
+}
+
+# Creates the initial visual grid on the canvas
+proc draw_grid {} {
+    global grid width height cellSize rects
+    .c delete all
+    for {set y 0} {$y < $height} {incr y} {
+        for {set x 0} {$x < $width} {incr x} {
+            set x1 [expr {$x * $cellSize}]
+            set y1 [expr {$y * $cellSize}]
+            set x2 [expr {$x1 + $cellSize}]
+            set y2 [expr {$y1 + $cellSize}]
+            set color [expr {$grid($y,$x) ? "white" : "black"}]
+            set rects($y,$x) [.c create rectangle $x1 $y1 $x2 $y2 -fill $color -outline "#333"]
+        }
+    }
+}
+
+# Efficiently updates cell colors without redrawing all rectangles
+proc update_colors {} {
+    global grid width height rects
+     for {set y 0} {$y < $height} {incr y} {
+        for {set x 0} {$x < $width} {incr x} {
+            set color [expr {$grid($y,$x) ? "white" : "black"}]
+            .c itemconfigure $rects($y,$x) -fill $color
+        }
+    }
+}
+
+# Counts live neighbors with toroidal wrapping
+proc count_neighbors {y x} {
+    global grid width height
+    set count 0
+    for {set dy -1} {$dy <= 1} {incr dy} {
+        for {set dx -1} {$dx <= 1} {incr dx} {
+            if {$dx == 0 && $dy == 0} continue
+            set ny [expr {($y + $dy + $height) % $height}]
+            set nx [expr {($x + $dx + $width) % $width}]
+            if {$grid($ny,$nx)} { incr count }
+        }
+    }
+    return $count
+}
+
+# Computes the next state for the entire grid
+proc compute_next_state {} {
+    global grid width height
+    array set new_grid {}
+    for {set y 0} {$y < $height} {incr y} {
+        for {set x 0} {$x < $width} {incr x} {
+            set alive $grid($y,$x)
+            set neighbors [count_neighbors $y $x]
+            if {($alive && ($neighbors == 2 || $neighbors == 3)) || (!$alive && $neighbors == 3)} {
+                set new_grid($y,$x) 1
+            } else {
+                set new_grid($y,$x) 0
+            }
+        }
+    }
+    # Atomically update the main grid with the new state
+    array set grid [array get new_grid]
+}
+
+# The main simulation loop
+proc game_loop {} {
+    global delay
+    compute_next_state
+    update_colors
+    after $delay game_loop
+}
+
+# Main Execution
+initialize_grid
+draw_grid
+game_loop
