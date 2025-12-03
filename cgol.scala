@@ -34,7 +34,6 @@ object GameOfLife {
   }
 
   def printGrid(grid: Grid): Unit = {
-    print("\u001b[H\u001b[2J")
     grid.foreach { row =>
       println(row.map(if (_) '█' else ' ').mkString)
     }
@@ -46,6 +45,7 @@ object GameOfLife {
       printGrid(grid)
       grid = computeNextState(grid)
       Thread.sleep(100)
+      print("\u001b[H\u001b[2J")
     }
   }
 }

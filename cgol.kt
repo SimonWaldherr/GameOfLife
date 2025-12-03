@@ -34,7 +34,6 @@ fun computeNextState(grid: Array<BooleanArray>): Array<BooleanArray> {
 }
 
 fun printGrid(grid: Array<BooleanArray>) {
-    print("\u001b[H\u001b[2J")
     grid.forEach { row ->
         println(row.map { if (it) '█' else ' ' }.joinToString(""))
     }
@@ -46,5 +45,6 @@ fun main() {
         printGrid(grid)
         grid = computeNextState(grid)
         Thread.sleep(100)
+        print("\u001b[H\u001b[2J")
     }
 }

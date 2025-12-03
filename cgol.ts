@@ -44,7 +44,6 @@ function computeNextState(grid: boolean[][]): boolean[][] {
 }
 
 function printGrid(grid: boolean[][]): void {
-    console.clear();
     console.log(grid.map(row => row.map(cell => (cell ? '█' : ' ')).join('')).join('\n'));
 }
 
@@ -53,6 +52,7 @@ function main(): void {
     setInterval(() => {
         printGrid(grid);
         grid = computeNextState(grid);
+        console.log('\x1b[H\x1b[2J');
     }, 100);
 }
 
