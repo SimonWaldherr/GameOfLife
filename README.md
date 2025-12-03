@@ -4,6 +4,8 @@
 
 This Repository contains multiple implementations of Conway's Game of Life, each written in different programming languages. Each implementation follows the same basic logic for simulating the cellular automaton but demonstrates how different languages can approach the problem.
 
+For a detailed description of each language, its main purpose, and suitability for implementing Game of Life, see [LANGUAGES.md](LANGUAGES.md).
+
 ## Files
 
 - **`cgol.awk`**: Game of Life in Awk
@@ -13,9 +15,12 @@ This Repository contains multiple implementations of Conway's Game of Life, each
 - **`cgol.dart`**: Dart language implementation.
 - **`cgol.erl`**: Erlang implementation of GoL.
 - **`cgol.exs`**: GoL in Elixir.
+- **`cgol.fs`**: F# (F-Sharp) implementation on .NET.
 - **`cgol.go`**: Implementation using the Go programming language. A version with more features can be found [here](https://github.com/SimonWaldherr/cgolGo). You can find a Version which runs on a Hub75-RGB-LED-Matrix at [github.com/SimonWaldherr/RGB-LED-Matrix](https://github.com/SimonWaldherr/RGB-LED-Matrix).
+- **`cgol.hs`**: Haskell implementation showcasing pure functional programming.
 - **`cgol.java`**: Java-based Game of Life simulation.
 - **`cgol.js`**: Node.js implementation.
+- **`cgol.kt`**: Kotlin implementation for modern JVM development.
     - there are also three implementations for the browser: [canvas](https://simonwaldherr.github.io/GameOfLife/cgol.js.canvas.html), [webgl](https://simonwaldherr.github.io/GameOfLife/cgol.js.webgl.html) and [wasm](https://simonwaldherr.github.io/GameOfLife/cgol.js.wasm.html) 
 - **`cgol.lisp`**: Game of Life in Lisp
 - **`cgol.lua`**: Lua script implementation.
@@ -28,11 +33,13 @@ This Repository contains multiple implementations of Conway's Game of Life, each
 - **`cgol.R`**: R script implementation of the Game of Life.
 - **`cgol.rb`**: Ruby script implementation.
 - **`cgol.rs`**: Rust-based Game of Life simulation. A very old version is [here](https://github.com/SimonWaldherr/cgol.rs).
+- **`cgol.scala`**: Scala implementation combining functional and OOP paradigms.
 - **`cgol.scad`**: run cgol.scad.sh to generate a Game of Life GIF with OpenSCAD.
 - **`cgol.sh`**: Bash shell script implementation.
 - **`cgol.sql.sh`**: calculate Game of Life with the help of a SQLite database.
 - **`cgol.swift`**: Swift programming language implementation.
 - **`cgol.tcl`**: Tcl (Tool command language) implementation.
+- **`cgol.ts`**: TypeScript implementation with type safety for JavaScript.
 - **`cgol.zig`**: Zig implementation.
 - **`stop.sh`**: some implementations can't be stopped with ctrl+c, use this tool in such cases.
 
@@ -58,9 +65,12 @@ Language | run with        | or
 **Cobol**|                 | `cobc -x cgol.cob; ./cgol`  
 **Dart** | `./cgol.dart`   | `dart cgol.dart`
 **Erlang** |               | `erlc cgol.erl; erl -noshell -s cgol start -s init stop`
+**F#**   | `./cgol.fs`     | `dotnet fsi cgol.fs`
 **Go**   | `./cgol.go`     | `go run cgol.go`
+**Haskell** | `./cgol.hs`  | `runhaskell cgol.hs`
 **Java** | `./cgol.java`   | `javac cgol.java && java cgol; rm cgol.class; exit`
 **JavaScript (Node.js)**   | `./cgol.js` | `node cgol.js`
+**Kotlin** | `./cgol.kt`   | `kotlin cgol.kt`
 **PHP**  | `./cgol.php`    | `php cgol.php`
 **Lua**  | `./cgol.lua`    | `lua cgol.lua`
 **LuaLaTeX**  |            | `lualatex cgol.lualatex.tex`
@@ -70,8 +80,10 @@ Language | run with        | or
 **R**    | `./cgol.R`      | `Rscript cgol.R`
 **Ruby** | `./cgol.rb`     | `ruby cgol.rb`
 **Rust** | `./cgol.rs`     | `cargo script cgol.rs`
+**Scala** | `./cgol.scala` | `scala cgol.scala`
 **Shell/Bash** | `./cgol.sh` | `sh cgol.sh`
 **Swift** | `./cgol.swift` | `swift cgol.swift`
+**TypeScript** | `./cgol.ts` | `ts-node cgol.ts`
 **SCAD** | `./cgol.scad.sh` | 
 **SQLite** | `./cgol.sql.sh` | 
 **Zig**  |                 | `zig run cgol.zig`  
