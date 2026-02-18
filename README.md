@@ -2,6 +2,16 @@
 
 [![DOI](https://zenodo.org/badge/852361755.svg)](https://zenodo.org/doi/10.5281/zenodo.13685438)
 
+## 🎵 Game of Life - The Song
+
+Inspired by this project, I created a song also called "Game of Life"! Listen to it on your favorite platform:
+
+[![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=5i7Ki2Op5GA)
+[![Spotify](https://img.shields.io/badge/Spotify-1ED760?style=for-the-badge&logo=spotify&logoColor=white)](https://open.spotify.com/album/7BpX3StCpV2qJOLESjJVWR)
+[![Apple Music](https://img.shields.io/badge/Apple_Music-FA243C?style=for-the-badge&logo=apple-music&logoColor=white)](https://music.apple.com/us/album/game-of-life-single/1871753460)
+
+---
+
 This Repository contains multiple implementations of Conway's Game of Life, each written in different programming languages. Each implementation follows the same basic logic for simulating the cellular automaton but demonstrates how different languages can approach the problem.
 
 ## What is Conway's Game of Life?
