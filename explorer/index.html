@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conway's Game of Life</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Mono:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --bg2: #111820;
+    --bg3: #161e28;
+    --border: #1e2d1e;
+    --border2: #2a3f2a;
+    --green: #39d353;
+    --green-dim: #1a6622;
+    --green-bright: #00ff88;
+    --red: #ff4444;
+    --blue: #58a6ff;
+    --text: #c9d1d9;
+    --text-dim: #6e7a6e;
+    --text-bright: #f0f6fc;
+    --panel-w: 220px;
+    --right-w: 240px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  header h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: 0.05em;
+  }
+
+  header .subtitle { color: var(--text-dim); font-size: 11px; }
+
+  .stats-bar { margin-left: auto; display: flex; gap: 16px; align-items: center; }
+
+  .stat { display: flex; gap: 5px; align-items: center; }
+  .stat .label { color: var(--text-dim); font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .stat .value { color: var(--green); font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; min-width: 45px; }
+
+  .main { display: flex; flex: 1; overflow: hidden; }
+
+  .panel-left {
+    width: var(--panel-w);
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel-right {
+    width: var(--right-w);
+    background: var(--bg2);
+    border-left: 1px solid var(--border);
+    overflow-y: auto;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .canvas-area { flex: 1; position: relative; overflow: hidden; background: #0d1117; }
+
+  #life-canvas {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    cursor: crosshair; display: block;
+  }
+
+  .section { border-bottom: 1px solid var(--border); padding: 10px 12px; }
+
+  .section-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; font-weight: 700; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px;
+  }
+
+  .btn-row { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 6px; }
+
+  button {
+    background: var(--bg3); color: var(--text); border: 1px solid var(--border2);
+    padding: 5px 10px; font-family: 'DM Mono', monospace; font-size: 11px;
+    cursor: pointer; border-radius: 3px; transition: all 0.12s; white-space: nowrap;
+  }
+  button:hover { border-color: var(--green-dim); color: var(--green); background: rgba(57,211,83,0.06); }
+  button.active, button:active { background: rgba(57,211,83,0.12); border-color: var(--green); color: var(--green-bright); }
+  #btn-play { flex: 1; font-weight: 700; }
+
+  .slider-group { margin-bottom: 8px; }
+  .slider-label { display: flex; justify-content: space-between; margin-bottom: 3px; color: var(--text-dim); font-size: 11px; }
+  .slider-label span { color: var(--green); font-family: 'Space Mono', monospace; }
+
+  input[type=range] { width: 100%; -webkit-appearance: none; height: 3px; background: var(--border2); border-radius: 2px; outline: none; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: var(--green); border-radius: 50%; cursor: pointer; }
+  input[type=range]::-webkit-slider-thumb:hover { background: var(--green-bright); }
+
+  .toggle-row { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; cursor: pointer; }
+  .toggle-row input[type=checkbox] { accent-color: var(--green); width: 13px; height: 13px; cursor: pointer; }
+  .toggle-row label { color: var(--text); font-size: 11px; cursor: pointer; flex: 1; }
+
+  .rule-display { font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; color: var(--green-bright); margin-bottom: 8px; }
+  .rule-row { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
+  .rule-row .rule-label { font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; color: var(--text-dim); width: 14px; flex-shrink: 0; }
+  .rule-checkboxes { display: flex; gap: 2px; }
+  .rule-cb { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+  .rule-cb span { font-size: 9px; color: var(--text-dim); }
+  .rule-cb input[type=checkbox] { accent-color: var(--green); width: 14px; height: 14px; cursor: pointer; margin: 0; }
+
+  .presets { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 6px; }
+  .preset-btn { font-size: 10px; padding: 3px 7px; }
+
+  .size-inputs { display: flex; gap: 4px; align-items: center; margin-bottom: 6px; }
+  .size-inputs input[type=number] {
+    background: var(--bg3); border: 1px solid var(--border2); color: var(--text);
+    width: 55px; padding: 4px 6px; font-family: 'DM Mono', monospace; font-size: 11px;
+    border-radius: 3px; text-align: center;
+  }
+  .size-inputs input[type=number]:focus { outline: none; border-color: var(--green-dim); }
+  .size-sep { color: var(--text-dim); font-size: 11px; }
+
+  .pattern-btn { display: flex; flex-direction: column; align-items: flex-start; width: 100%; text-align: left; padding: 6px 10px; margin-bottom: 2px; border-radius: 4px; gap: 1px; }
+  .pattern-name { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text-bright); }
+  .pattern-cat { font-size: 10px; color: var(--text-dim); }
+  #pattern-desc { font-size: 11px; color: var(--text-dim); line-height: 1.5; margin-top: 6px; min-height: 30px; font-style: italic; }
+
+  #inspector-panel { display: none; padding: 10px 12px; background: rgba(0,255,136,0.04); border-top: 1px solid var(--green-dim); flex-shrink: 0; }
+  .inspector-title { font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 700; color: var(--green); margin-bottom: 8px; }
+  .inspector-row { display: flex; gap: 6px; align-items: flex-start; margin-bottom: 4px; font-size: 11px; }
+  .inspector-row .label { color: var(--text-dim); min-width: 65px; flex-shrink: 0; }
+  .inspector-rule { margin-top: 6px; padding: 4px 8px; background: rgba(57,211,83,0.08); border-left: 2px solid var(--green-dim); font-size: 11px; color: var(--green); font-family: 'Space Mono', monospace; }
+  .inspector-hint { margin-top: 6px; font-size: 10px; color: var(--text-dim); font-style: italic; }
+
+  .alive-label { color: var(--green-bright); font-weight: 700; }
+  .dead-label { color: var(--red); }
+
+  .change-note { font-size: 11px; padding: 3px 6px; margin-bottom: 6px; border-radius: 3px; }
+  .change-note.born { background: rgba(0,255,136,0.1); color: var(--green-bright); border-left: 2px solid var(--green-bright); }
+  .change-note.died { background: rgba(255,68,68,0.1); color: var(--red); border-left: 2px solid var(--red); }
+
+  textarea {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border2); color: var(--text);
+    font-family: 'DM Mono', monospace; font-size: 10px; padding: 6px; resize: vertical;
+    border-radius: 3px; line-height: 1.4; margin-bottom: 4px;
+  }
+  textarea:focus { outline: none; border-color: var(--green-dim); }
+
+  .hint-box {
+    background: rgba(88,166,255,0.07); border: 1px solid rgba(88,166,255,0.2);
+    border-radius: 4px; padding: 8px 10px; font-size: 11px; color: var(--text-dim);
+    line-height: 1.6; margin-bottom: 6px;
+  }
+  .hint-box strong { color: var(--blue); font-family: 'Space Mono', monospace; }
+
+  .canvas-hint {
+    position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.6); border: 1px solid var(--border2); padding: 4px 10px;
+    font-size: 10px; color: var(--text-dim); border-radius: 20px;
+    pointer-events: none; white-space: nowrap;
+  }
+
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--green-dim); }
+
+  @media (max-width: 768px) {
+    .main { flex-direction: column; }
+    .panel-left, .panel-right { width: 100%; max-height: 200px; }
+    .canvas-area { min-height: 300px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Game of Life</h1>
+  <span class="subtitle">Conway's cellular automaton — interactive explorer</span>
+  <div class="stats-bar">
+    <div class="stat"><span class="label">Gen</span><span class="value" id="stat-gen">0</span></div>
+    <div class="stat"><span class="label">Cells</span><span class="value" id="stat-live">0</span></div>
+    <div class="stat"><span class="label">FPS</span><span class="value" id="stat-fps">0</span></div>
+  </div>
+</header>
+
+<div class="main">
+
+  <!-- LEFT PANEL -->
+  <div class="panel-left">
+    <div class="section">
+      <div class="section-title">Simulation</div>
+      <div class="btn-row">
+        <button id="btn-play">▶ Play</button>
+        <button id="btn-step">⏭ Step</button>
+      </div>
+      <div class="btn-row">
+        <button id="btn-randomize">⚡ Randomize</button>
+        <button id="btn-clear">✕ Clear</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Speed</div>
+      <div class="slider-group">
+        <div class="slider-label">Generations/sec <span id="speed-val">10</span></div>
+        <input type="range" id="slider-speed" min="1" max="60" value="10">
+      </div>
+      <div class="slider-group">
+        <div class="slider-label">Random density <span id="density-val">30%</span></div>
+        <input type="range" id="slider-density" min="1" max="99" value="30">
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Display</div>
+      <label class="toggle-row"><input type="checkbox" id="toggle-wrap" checked><label for="toggle-wrap">Wrap edges (toroidal)</label></label>
+      <label class="toggle-row"><input type="checkbox" id="toggle-grid" checked><label for="toggle-grid">Show grid lines</label></label>
+      <label class="toggle-row"><input type="checkbox" id="toggle-neighbors"><label for="toggle-neighbors">Show neighbor counts</label></label>
+      <label class="toggle-row"><input type="checkbox" id="toggle-highlights" checked><label for="toggle-highlights">Highlight births/deaths</label></label>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Grid Size</div>
+      <div class="size-inputs">
+        <input type="number" id="grid-width" value="80" min="5" max="500">
+        <span class="size-sep">×</span>
+        <input type="number" id="grid-height" value="50" min="5" max="500">
+      </div>
+      <button id="btn-resize" style="width:100%">Resize Grid</button>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Rules — Life-like (B/S)</div>
+      <div class="rule-display" id="rule-display">B3/S23</div>
+      <div class="rule-row">
+        <span class="rule-label">B</span>
+        <div class="rule-checkboxes" id="birth-checks"></div>
+      </div>
+      <div class="rule-row">
+        <span class="rule-label">S</span>
+        <div class="rule-checkboxes" id="survive-checks"></div>
+      </div>
+      <div class="presets">
+        <button class="preset-btn active" data-rule="B3/S23">Conway</button>
+        <button class="preset-btn" data-rule="B36/S23">HighLife</button>
+        <button class="preset-btn" data-rule="B2/S">Seeds</button>
+        <button class="preset-btn" data-rule="B3678/S34678">Day&amp;Night</button>
+        <button class="preset-btn" data-rule="B368/S245">Morley</button>
+        <button class="preset-btn" data-rule="B3/S12345">Maze</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Share</div>
+      <button id="btn-share" style="width:100%">🔗 Share URL</button>
+    </div>
+  </div>
+
+  <!-- CANVAS CENTER -->
+  <div class="canvas-area">
+    <canvas id="life-canvas"></canvas>
+    <div class="canvas-hint">Click to toggle · Drag to paint · Shift+drag to erase · Scroll to zoom · Middle-drag to pan</div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="panel-right">
+    <div class="section">
+      <div class="section-title">How It Works</div>
+      <div class="hint-box">
+        Each cell lives or dies based on its <strong>8 neighbors</strong>:<br>
+        <strong>Birth:</strong> dead cell with B neighbors → alive<br>
+        <strong>Survive:</strong> live cell with S neighbors → stays<br>
+        <strong>Otherwise:</strong> cell dies or stays dead
+      </div>
+      <div class="hint-box" style="border-color:rgba(57,211,83,0.2);background:rgba(57,211,83,0.04)">
+        <strong>🟩 Green flash</strong> = cell was born<br>
+        <strong style="color:var(--red)">🔴 Red flash</strong> = cell died<br>
+        <strong>Click any cell</strong> to inspect why it changed
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Cell Inspector</div>
+      <div id="inspector-panel">
+        <div class="inspector-hint" style="display:block;padding:0">Click a cell on the grid to inspect its state and understand why it will change next step.</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Pattern Library</div>
+      <div id="pattern-list"></div>
+      <div id="pattern-desc">Select a pattern to see its description and place it on the grid.</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">RLE Import / Export</div>
+      <textarea id="rle-textarea" rows="5" placeholder="Paste RLE pattern here..."></textarea>
+      <div class="btn-row">
+        <button id="btn-export-rle">Export</button>
+        <button id="btn-import-rle">Import</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+
+// ─── grid.js ──────────────────────────────────────────────────────────────────
+
+class Grid {
+  constructor(width, height, wrap = true) {
+    this.init(width, height, wrap);
+  }
+
+  init(width, height, wrap = true) {
+    this.width = width;
+    this.height = height;
+    this.wrap = wrap;
+    this.current = new Uint8Array(width * height);
+    this.next = new Uint8Array(width * height);
+    this.generation = 0;
+    this.birthRule = new Uint8Array(9);
+    this.surviveRule = new Uint8Array(9);
+    this.birthRule[3] = 1;
+    this.surviveRule[2] = 1;
+    this.surviveRule[3] = 1;
+  }
+
+  idx(x, y) { return y * this.width + x; }
+
+  get(x, y) {
+    if (this.wrap) {
+      x = ((x % this.width) + this.width) % this.width;
+      y = ((y % this.height) + this.height) % this.height;
+    } else {
+      if (x < 0 || x >= this.width || y < 0 || y >= this.height) return 0;
+    }
+    return this.current[this.idx(x, y)];
+  }
+
+  set(x, y, value) {
+    if (x < 0 || x >= this.width || y < 0 || y >= this.height) return;
+    this.current[this.idx(x, y)] = value ? 1 : 0;
+  }
+
+  toggle(x, y) {
+    if (x < 0 || x >= this.width || y < 0 || y >= this.height) return;
+    this.current[this.idx(x, y)] ^= 1;
+  }
+
+  countNeighbors(x, y) {
+    let count = 0;
+    for (let dy = -1; dy <= 1; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        if (dx === 0 && dy === 0) continue;
+        let nx = x + dx, ny = y + dy;
+        if (this.wrap) {
+          nx = ((nx % this.width) + this.width) % this.width;
+          ny = ((ny % this.height) + this.height) % this.height;
+        } else {
+          if (nx < 0 || nx >= this.width || ny < 0 || ny >= this.height) continue;
+        }
+        count += this.current[this.idx(nx, ny)];
+      }
+    }
+    return count;
+  }
+
+  // Returns array of {x, y, prev, next, neighbors} for changed cells
+  step() {
+    const changed = [];
+    const w = this.width, h = this.height;
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const i = this.idx(x, y);
+        const alive = this.current[i];
+        const n = this.countNeighbors(x, y);
+        const nextState = alive ? (this.surviveRule[n] ? 1 : 0) : (this.birthRule[n] ? 1 : 0);
+        this.next[i] = nextState;
+        if (nextState !== alive) changed.push({ x, y, prev: alive, next: nextState, neighbors: n });
+      }
+    }
+    const tmp = this.current; this.current = this.next; this.next = tmp;
+    this.generation++;
+    return changed;
+  }
+
+  countLive() {
+    let count = 0;
+    for (let i = 0; i < this.current.length; i++) count += this.current[i];
+    return count;
+  }
+
+  clear() { this.current.fill(0); this.generation = 0; }
+
+  randomize(density = 0.3) {
+    for (let i = 0; i < this.current.length; i++)
+      this.current[i] = Math.random() < density ? 1 : 0;
+  }
+
+  setRule(ruleStr) {
+    this.birthRule.fill(0); this.surviveRule.fill(0);
+    const m = ruleStr.toUpperCase().match(/B([0-8]*)\/S([0-8]*)/);
+    if (!m) return;
+    for (const c of m[1]) this.birthRule[parseInt(c)] = 1;
+    for (const c of m[2]) this.surviveRule[parseInt(c)] = 1;
+  }
+
+  getRuleString() {
+    let b = '', s = '';
+    for (let i = 0; i <= 8; i++) {
+      if (this.birthRule[i]) b += i;
+      if (this.surviveRule[i]) s += i;
+    }
+    return `B${b}/S${s}`;
+  }
+
+  serializeRLE() {
+    const w = this.width, h = this.height;
+    let rle = `x = ${w}, y = ${h}, rule = ${this.getRuleString()}\n`;
+    let body = '';
+    for (let y = 0; y < h; y++) {
+      let rowStr = '', run = 0, lastCell = this.current[this.idx(0, y)];
+      for (let x = 1; x < w; x++) {
+        const c = this.current[this.idx(x, y)];
+        if (c === lastCell) { run++; } else { rowStr += _rleRun(run + 1, lastCell); lastCell = c; run = 0; }
+      }
+      rowStr += _rleRun(run + 1, lastCell);
+      rowStr = rowStr.replace(/\d*b$/, '');
+      body += rowStr + (y < h - 1 ? '$' : '!');
+    }
+    return rle + body.replace(/\$+!$/, '!');
+  }
+
+  loadRLE(text) {
+    const lines = text.split('\n').filter(l => !l.startsWith('#'));
+    let header = null, bodyLines = [];
+    for (const line of lines) {
+      if (!header && line.includes('x')) header = line;
+      else bodyLines.push(line);
+    }
+    const body = bodyLines.join('').replace(/\s/g, '');
+    let pw = this.width, ph = this.height;
+    if (header) {
+      const mx = header.match(/x\s*=\s*(\d+)/), my = header.match(/y\s*=\s*(\d+)/);
+      if (mx) pw = parseInt(mx[1]);
+      if (my) ph = parseInt(my[1]);
+      const mr = header.match(/rule\s*=\s*([B0-9\/S]+)/i);
+      if (mr) this.setRule(mr[1]);
+    }
+    const cells = _decodeRLE(body, pw, ph);
+    const ox = Math.floor((this.width - pw) / 2);
+    const oy = Math.floor((this.height - ph) / 2);
+    for (const {x, y, v} of cells) this.set(x + ox, y + oy, v);
+  }
+
+  placePattern(pattern, cx, cy) {
+    const ph = pattern.length, pw = pattern[0]?.length || 0;
+    const ox = cx - Math.floor(pw / 2), oy = cy - Math.floor(ph / 2);
+    for (let y = 0; y < ph; y++)
+      for (let x = 0; x < pw; x++)
+        if (pattern[y][x]) this.set(ox + x, oy + y, 1);
+  }
+}
+
+function _rleRun(count, cell) { return (count === 1 ? '' : count) + (cell ? 'o' : 'b'); }
+
+function _decodeRLE(body, w, h) {
+  const cells = []; let x = 0, y = 0, run = '';
+  for (const ch of body) {
+    if (ch >= '0' && ch <= '9') { run += ch; }
+    else if (ch === 'b') { x += run ? parseInt(run) : 1; run = ''; }
+    else if (ch === 'o') {
+      const count = run ? parseInt(run) : 1;
+      for (let i = 0; i < count; i++) cells.push({x: x + i, y, v: 1});
+      x += count; run = '';
+    } else if (ch === '$') { y += run ? parseInt(run) : 1; x = 0; run = ''; }
+    else if (ch === '!') break;
+  }
+  return cells;
+}
+
+// ─── renderer.js ──────────────────────────────────────────────────────────────
+
+class Renderer {
+  constructor(canvas, grid) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.grid = grid;
+    this.cellSize = 10;
+    this.offsetX = 0;
+    this.offsetY = 0;
+    this.showGrid = true;
+    this.showNeighborCounts = false;
+    this.showChanges = true;
+    this.changedCells = [];
+    this.changeFrames = 0;
+    this.ghostPattern = null;
+    this.ghostX = -1;
+    this.ghostY = -1;
+    this.hoverX = -1;
+    this.hoverY = -1;
+    this.colors = {
+      bg: '#0d1117', cell: '#39d353', gridLine: '#1e2a1e',
+      ghost: 'rgba(100,200,255,0.4)', hoverBg: 'rgba(255,255,255,0.08)',
+      neighborTextDark: '#88ff88',
+    };
+  }
+
+  resize() {
+    const dpr = window.devicePixelRatio || 1;
+    const rect = this.canvas.getBoundingClientRect();
+    this.canvas.width = rect.width * dpr;
+    this.canvas.height = rect.height * dpr;
+    this.ctx.scale(dpr, dpr);
+    this.logicalW = rect.width;
+    this.logicalH = rect.height;
+  }
+
+  fitToView() {
+    const scaleX = this.logicalW / this.grid.width;
+    const scaleY = this.logicalH / this.grid.height;
+    this.cellSize = Math.max(2, Math.floor(Math.min(scaleX, scaleY)));
+    this.offsetX = Math.floor((this.logicalW - this.cellSize * this.grid.width) / 2);
+    this.offsetY = Math.floor((this.logicalH - this.cellSize * this.grid.height) / 2);
+  }
+
+  screenToGrid(sx, sy) {
+    return {
+      x: Math.floor((sx - this.offsetX) / this.cellSize),
+      y: Math.floor((sy - this.offsetY) / this.cellSize)
+    };
+  }
+
+  zoom(factor, cx, cy) {
+    const old = this.cellSize;
+    this.cellSize = Math.max(2, Math.min(64, this.cellSize * factor));
+    this.offsetX = cx - (cx - this.offsetX) * (this.cellSize / old);
+    this.offsetY = cy - (cy - this.offsetY) * (this.cellSize / old);
+  }
+
+  pan(dx, dy) { this.offsetX += dx; this.offsetY += dy; }
+
+  setChangedCells(cells) { this.changedCells = cells; this.changeFrames = 8; }
+
+  render() {
+    const ctx = this.ctx;
+    const w = this.logicalW, h = this.logicalH;
+    ctx.fillStyle = this.colors.bg;
+    ctx.fillRect(0, 0, w, h);
+
+    const cs = this.cellSize, gw = this.grid.width, gh = this.grid.height;
+    const x0 = Math.max(0, Math.floor(-this.offsetX / cs));
+    const y0 = Math.max(0, Math.floor(-this.offsetY / cs));
+    const x1 = Math.min(gw - 1, Math.ceil((w - this.offsetX) / cs));
+    const y1 = Math.min(gh - 1, Math.ceil((h - this.offsetY) / cs));
+
+    const changeMap = new Map();
+    if (this.changeFrames > 0)
+      for (const c of this.changedCells) changeMap.set(c.y * gw + c.x, c);
+
+    for (let gy = y0; gy <= y1; gy++) {
+      for (let gx = x0; gx <= x1; gx++) {
+        const alive = this.grid.get(gx, gy);
+        const sx = this.offsetX + gx * cs, sy = this.offsetY + gy * cs;
+        if (alive) {
+          ctx.fillStyle = this.colors.cell;
+          ctx.fillRect(sx + 0.5, sy + 0.5, cs - 1, cs - 1);
+        }
+        const change = changeMap.get(gy * gw + gx);
+        if (change && this.showChanges && this.changeFrames > 0) {
+          const alpha = this.changeFrames / 8;
+          if (change.next === 1) {
+            ctx.fillStyle = `rgba(0,255,136,${alpha * 0.7})`;
+            ctx.fillRect(sx + 0.5, sy + 0.5, cs - 1, cs - 1);
+            if (cs >= 10) {
+              ctx.strokeStyle = `rgba(0,255,136,${alpha})`; ctx.lineWidth = 1.5;
+              ctx.strokeRect(sx + 1, sy + 1, cs - 2, cs - 2);
+            }
+          } else {
+            ctx.fillStyle = `rgba(255,68,68,${alpha * 0.5})`;
+            ctx.fillRect(sx + 0.5, sy + 0.5, cs - 1, cs - 1);
+            if (cs >= 10) {
+              ctx.strokeStyle = `rgba(255,68,68,${alpha})`; ctx.lineWidth = 1.5;
+              ctx.strokeRect(sx + 1, sy + 1, cs - 2, cs - 2);
+            }
+          }
+        }
+      }
+    }
+
+    if (this.showGrid && cs >= 6) {
+      ctx.strokeStyle = this.colors.gridLine; ctx.lineWidth = 0.5; ctx.beginPath();
+      for (let gx = x0; gx <= x1 + 1; gx++) {
+        const sx = this.offsetX + gx * cs;
+        ctx.moveTo(sx, this.offsetY + y0 * cs); ctx.lineTo(sx, this.offsetY + (y1 + 1) * cs);
+      }
+      for (let gy = y0; gy <= y1 + 1; gy++) {
+        const sy = this.offsetY + gy * cs;
+        ctx.moveTo(this.offsetX + x0 * cs, sy); ctx.lineTo(this.offsetX + (x1 + 1) * cs, sy);
+      }
+      ctx.stroke();
+    }
+
+    if (this.showNeighborCounts && cs >= 12) {
+      ctx.font = `bold ${Math.max(8, cs * 0.45)}px 'Courier New', monospace`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      for (let gy = y0; gy <= y1; gy++) {
+        for (let gx = x0; gx <= x1; gx++) {
+          const n = this.grid.countNeighbors(gx, gy);
+          if (n === 0) continue;
+          const alive = this.grid.get(gx, gy);
+          ctx.fillStyle = alive ? '#003300' : this.colors.neighborTextDark;
+          ctx.fillText(n, this.offsetX + gx * cs + cs / 2, this.offsetY + gy * cs + cs / 2);
+        }
+      }
+    }
+
+    if (this.hoverX >= 0 && this.hoverY >= 0) {
+      const sx = this.offsetX + this.hoverX * cs, sy = this.offsetY + this.hoverY * cs;
+      ctx.fillStyle = this.colors.hoverBg; ctx.fillRect(sx, sy, cs, cs);
+      if (cs >= 6) {
+        ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 1;
+        ctx.strokeRect(sx + 0.5, sy + 0.5, cs - 1, cs - 1);
+      }
+    }
+
+    if (this.ghostPattern && this.ghostX >= 0) {
+      const pg = this.ghostPattern, ph = pg.length, pw = pg[0]?.length || 0;
+      const ox = this.ghostX - Math.floor(pw / 2), oy = this.ghostY - Math.floor(ph / 2);
+      for (let py = 0; py < ph; py++) {
+        for (let px = 0; px < pw; px++) {
+          if (!pg[py][px]) continue;
+          const sx = this.offsetX + (ox + px) * cs, sy = this.offsetY + (oy + py) * cs;
+          ctx.fillStyle = this.colors.ghost; ctx.fillRect(sx + 0.5, sy + 0.5, cs - 1, cs - 1);
+          ctx.strokeStyle = 'rgba(100,200,255,0.8)'; ctx.lineWidth = 1;
+          ctx.strokeRect(sx + 0.5, sy + 0.5, cs - 1, cs - 1);
+        }
+      }
+    }
+
+    ctx.strokeStyle = '#2a4a2a'; ctx.lineWidth = 1;
+    ctx.strokeRect(this.offsetX, this.offsetY, gw * cs, gh * cs);
+
+    if (this.changeFrames > 0) this.changeFrames--;
+  }
+}
+
+// ─── patterns.js ──────────────────────────────────────────────────────────────
+
+const PATTERNS = [
+  { name: 'Block',    category: 'Still Life',      grid: [[1,1],[1,1]], description: 'The simplest stable pattern. 4 cells that never change.' },
+  { name: 'Beehive',  category: 'Still Life',      grid: [[0,1,1,0],[1,0,0,1],[0,1,1,0]], description: 'A 6-cell stable pattern shaped like a beehive.' },
+  { name: 'Blinker',  category: 'Oscillator (P2)', grid: [[1,1,1]], description: 'Period-2 oscillator. The simplest and most common oscillator.' },
+  { name: 'Toad',     category: 'Oscillator (P2)', grid: [[0,1,1,1],[1,1,1,0]], description: 'Period-2 oscillator with 6 cells.' },
+  { name: 'Beacon',   category: 'Oscillator (P2)', grid: [[1,1,0,0],[1,1,0,0],[0,0,1,1],[0,0,1,1]], description: 'Period-2 oscillator made of two offset blocks.' },
+  { name: 'Glider',   category: 'Spaceship',       grid: [[0,1,0],[0,0,1],[1,1,1]], description: 'The iconic spaceship! Moves diagonally every 4 generations.' },
+  { name: 'LWSS',     category: 'Spaceship',       grid: [[0,1,0,0,1],[1,0,0,0,0],[1,0,0,0,1],[1,1,1,1,0]], description: 'Lightweight Spaceship — moves horizontally across the grid.' },
+  {
+    name: 'Pulsar', category: 'Oscillator (P3)', grid: null,
+    rleData: `x = 13, y = 13\n2b3o3b3o2b$4bobobobo4b$o4boboob4o$o4bobob4o$o4bobob4o$2b3o3b3o2b$7b7b$2b3o3b3o2b$o4bobob4o$o4bobob4o$o4bobob4o$4bobobobo4b$2b3o3b3o2b!`,
+    description: 'Period-3 oscillator with 48 cells. One of the most beautiful patterns.'
+  },
+  {
+    name: 'Gosper Glider Gun', category: 'Gun', grid: null,
+    rleData: `x = 36, y = 9, rule = B3/S23\n24bo11b$22bobo11b$12b2o6b2o12b2o$11bo3bo4b2o12b2o$2o8bo5bo3b2o14b$2o8bo3bob2o4bobo11b$10bo5bo7bo11b$11bo3bo20b$12b2o!`,
+    description: 'Famous pattern that endlessly generates gliders. First known gun pattern (1970).'
+  }
+];
+
+function parsePatternGrid(p) {
+  if (p.grid) return p.grid;
+  if (p.rleData) {
+    const lines = p.rleData.split('\n').filter(l => !l.startsWith('#'));
+    let w = 10, h = 10, bodyStart = 0;
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].includes('x')) {
+        const mx = lines[i].match(/x\s*=\s*(\d+)/), my = lines[i].match(/y\s*=\s*(\d+)/);
+        if (mx) w = parseInt(mx[1]); if (my) h = parseInt(my[1]);
+        bodyStart = i + 1; break;
+      }
+    }
+    const body = lines.slice(bodyStart).join('').replace(/\s/g, '');
+    const grid = Array.from({length: h}, () => new Array(w).fill(0));
+    let x = 0, y = 0, run = '';
+    for (const ch of body) {
+      if (ch >= '0' && ch <= '9') { run += ch; }
+      else if (ch === 'b') { x += run ? parseInt(run) : 1; run = ''; }
+      else if (ch === 'o') {
+        const count = run ? parseInt(run) : 1;
+        for (let i = 0; i < count; i++) if (y < h && x+i < w) grid[y][x+i] = 1;
+        x += count; run = '';
+      } else if (ch === '$') { y += run ? parseInt(run) : 1; x = 0; run = ''; }
+      else if (ch === '!') break;
+    }
+    return grid;
+  }
+  return [[1]];
+}
+
+// ─── state.js ─────────────────────────────────────────────────────────────────
+
+function encodeState(grid) {
+  const p = new URLSearchParams();
+  p.set('w', grid.width); p.set('h', grid.height);
+  p.set('rule', grid.getRuleString()); p.set('wrap', grid.wrap ? '1' : '0');
+  if (grid.countLive() > 0) p.set('rle', btoa(grid.serializeRLE()));
+  return p.toString();
+}
+
+function decodeState(search) {
+  const p = new URLSearchParams(search), r = {};
+  if (p.has('w')) r.width = parseInt(p.get('w'));
+  if (p.has('h')) r.height = parseInt(p.get('h'));
+  if (p.has('rule')) r.rule = p.get('rule');
+  if (p.has('wrap')) r.wrap = p.get('wrap') === '1';
+  if (p.has('rle')) { try { r.rle = atob(p.get('rle')); } catch(e) {} }
+  return r;
+}
+
+function saveToURL(grid) { history.replaceState(null, '', '?' + encodeState(grid)); }
+
+// ─── app.js ───────────────────────────────────────────────────────────────────
+
+// Build rule checkboxes
+for (let n = 0; n <= 8; n++) {
+  ['birth-checks', 'survive-checks'].forEach((id, i) => {
+    const type = i === 0 ? 'birth' : 'survive';
+    const div = document.createElement('div');
+    div.className = 'rule-cb';
+    const defaultChecked = (type === 'birth' && n === 3) || (type === 'survive' && (n === 2 || n === 3));
+    div.innerHTML = `<span>${n}</span><input type="checkbox" id="${type}-${n}"${defaultChecked ? ' checked' : ''}>`;
+    document.getElementById(id).appendChild(div);
+  });
+}
+
+class App {
+  constructor() {
+    this.grid = new Grid(80, 50, true);
+    this.canvas = document.getElementById('life-canvas');
+    this.renderer = new Renderer(this.canvas, this.grid);
+    this.running = false;
+    this.speed = 10;
+    this.lastStep = 0;
+    this.frameCount = 0;
+    this.fpsTime = 0;
+    this.fps = 0;
+    this.selectedPattern = null;
+    this.ghostPattern = null;
+    this.isDragging = false;
+    this.isPainting = true;
+    this.isPanning = false;
+    this.lastPanX = 0; this.lastPanY = 0;
+    this.lastPaintCell = null;
+    this.inspectedCell = null;
+
+    this.initUI();
+    this.initCanvas();
+    this.loadFromURL();
+    this.renderer.resize();
+    this.renderer.fitToView();
+    this.loop(0);
+  }
+
+  loadFromURL() {
+    const state = decodeState(window.location.search);
+    if (state.width && state.height) {
+      this.grid.init(state.width, state.height, state.wrap ?? true);
+      document.getElementById('grid-width').value = state.width;
+      document.getElementById('grid-height').value = state.height;
+    }
+    if (state.rule) { this.grid.setRule(state.rule); this.updateRuleUI(); }
+    if (state.rle) this.grid.loadRLE(state.rle);
+    this.renderer.grid = this.grid;
+  }
+
+  initUI() {
+    const btnPlay = document.getElementById('btn-play');
+    btnPlay.addEventListener('click', () => {
+      this.running = !this.running;
+      btnPlay.textContent = this.running ? '⏸ Pause' : '▶ Play';
+      btnPlay.classList.toggle('active', this.running);
+    });
+
+    document.getElementById('btn-step').addEventListener('click', () => this.doStep());
+
+    document.getElementById('btn-clear').addEventListener('click', () => {
+      this.grid.clear(); this.renderer.changedCells = [];
+      this.running = false; btnPlay.textContent = '▶ Play'; btnPlay.classList.remove('active');
+      this.updateStats();
+    });
+
+    document.getElementById('btn-randomize').addEventListener('click', () => {
+      this.grid.randomize(parseInt(document.getElementById('slider-density').value) / 100);
+      this.updateStats();
+    });
+
+    document.getElementById('slider-speed').addEventListener('input', e => {
+      this.speed = parseInt(e.target.value);
+      document.getElementById('speed-val').textContent = this.speed;
+    });
+
+    document.getElementById('slider-density').addEventListener('input', e => {
+      document.getElementById('density-val').textContent = e.target.value + '%';
+    });
+
+    document.getElementById('toggle-wrap').addEventListener('change', e => { this.grid.wrap = e.target.checked; });
+    document.getElementById('toggle-neighbors').addEventListener('change', e => { this.renderer.showNeighborCounts = e.target.checked; });
+    document.getElementById('toggle-highlights').addEventListener('change', e => { this.renderer.showChanges = e.target.checked; });
+    document.getElementById('toggle-grid').addEventListener('change', e => { this.renderer.showGrid = e.target.checked; });
+
+    document.getElementById('btn-resize').addEventListener('click', () => {
+      const w = parseInt(document.getElementById('grid-width').value);
+      const h = parseInt(document.getElementById('grid-height').value);
+      if (w > 0 && h > 0 && w <= 500 && h <= 500) { this.grid.init(w, h, this.grid.wrap); this.renderer.fitToView(); }
+    });
+
+    for (let n = 0; n <= 8; n++) {
+      document.getElementById(`birth-${n}`)?.addEventListener('change', () => this.updateRuleFromUI());
+      document.getElementById(`survive-${n}`)?.addEventListener('change', () => this.updateRuleFromUI());
+    }
+
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.grid.setRule(btn.dataset.rule); this.updateRuleUI();
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    this.buildPatternLibrary();
+
+    document.getElementById('btn-export-rle').addEventListener('click', () => {
+      document.getElementById('rle-textarea').value = this.grid.serializeRLE();
+    });
+    document.getElementById('btn-import-rle').addEventListener('click', () => {
+      const rle = document.getElementById('rle-textarea').value.trim();
+      if (rle) { this.grid.clear(); this.grid.loadRLE(rle); this.updateStats(); }
+    });
+    document.getElementById('btn-share').addEventListener('click', () => {
+      saveToURL(this.grid);
+      navigator.clipboard?.writeText(window.location.href).then(() => {
+        const btn = document.getElementById('btn-share');
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => btn.textContent = '🔗 Share URL', 1500);
+      });
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        this.selectedPattern = null; this.ghostPattern = null; this.renderer.ghostPattern = null;
+        document.querySelectorAll('.pattern-btn').forEach(b => b.classList.remove('active'));
+      }
+    });
+  }
+
+  buildPatternLibrary() {
+    const container = document.getElementById('pattern-list');
+    for (const p of PATTERNS) {
+      const btn = document.createElement('button');
+      btn.className = 'pattern-btn';
+      btn.innerHTML = `<span class="pattern-name">${p.name}</span><span class="pattern-cat">${p.category}</span>`;
+      btn.title = p.description;
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.pattern-btn').forEach(b => b.classList.remove('active'));
+        if (this.selectedPattern === p) {
+          this.selectedPattern = null; this.ghostPattern = null; this.renderer.ghostPattern = null;
+        } else {
+          btn.classList.add('active');
+          this.selectedPattern = p;
+          this.ghostPattern = parsePatternGrid(p);
+          this.renderer.ghostPattern = this.ghostPattern;
+          document.getElementById('pattern-desc').textContent = p.description;
+        }
+      });
+      container.appendChild(btn);
+    }
+  }
+
+  updateRuleFromUI() {
+    let b = '', s = '';
+    for (let n = 0; n <= 8; n++) {
+      if (document.getElementById(`birth-${n}`)?.checked) b += n;
+      if (document.getElementById(`survive-${n}`)?.checked) s += n;
+    }
+    const rule = `B${b}/S${s}`;
+    this.grid.setRule(rule);
+    document.getElementById('rule-display').textContent = rule;
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+  }
+
+  updateRuleUI() {
+    for (let n = 0; n <= 8; n++) {
+      const cb = document.getElementById(`birth-${n}`), cs = document.getElementById(`survive-${n}`);
+      if (cb) cb.checked = !!this.grid.birthRule[n];
+      if (cs) cs.checked = !!this.grid.surviveRule[n];
+    }
+    document.getElementById('rule-display').textContent = this.grid.getRuleString();
+  }
+
+  doStep() {
+    const changed = this.grid.step();
+    this.renderer.setChangedCells(changed);
+    this.updateStats();
+    if (this.inspectedCell) this.showInspector(this.inspectedCell.x, this.inspectedCell.y, changed);
+  }
+
+  updateStats() {
+    document.getElementById('stat-gen').textContent = this.grid.generation;
+    document.getElementById('stat-live').textContent = this.grid.countLive();
+    document.getElementById('stat-fps').textContent = this.fps.toFixed(1);
+  }
+
+  showInspector(x, y, recentChanged = []) {
+    this.inspectedCell = {x, y};
+    const alive = this.grid.get(x, y), n = this.grid.countNeighbors(x, y);
+    const panel = document.getElementById('inspector-panel');
+    let rule, outcome;
+    if (alive) {
+      if (this.grid.surviveRule[n]) {
+        rule = `S${n} — survives`;
+        outcome = `<span class="alive-label">Stays alive</span> with ${n} neighbor${n!==1?'s':''} (S${n})`;
+      } else {
+        rule = `${n} neighbor${n!==1?'s':''} — no survival rule`;
+        outcome = `<span class="dead-label">Will die</span> — needs S${n} to survive`;
+      }
+    } else {
+      if (this.grid.birthRule[n]) {
+        rule = `B${n} — will be born`;
+        outcome = `<span class="alive-label">Will be born</span> with exactly ${n} neighbor${n!==1?'s':''} (B${n})`;
+      } else {
+        rule = `${n} neighbor${n!==1?'s':''} — no birth rule`;
+        outcome = `<span class="dead-label">Stays dead</span> — needs B${n} for birth`;
+      }
+    }
+    const change = recentChanged.find(c => c.x === x && c.y === y);
+    const changeNote = change
+      ? `<div class="change-note ${change.next===1?'born':'died'}">${change.next===1?'✦ Born':'✦ Died'} this generation (had ${change.neighbors} neighbors)</div>`
+      : '';
+    panel.innerHTML = `
+      <div class="inspector-title">Cell (${x}, ${y})</div>
+      ${changeNote}
+      <div class="inspector-row"><span class="label">State:</span><span class="${alive?'alive-label':'dead-label'}">${alive?'● Alive':'○ Dead'}</span></div>
+      <div class="inspector-row"><span class="label">Neighbors:</span><span>${n}</span></div>
+      <div class="inspector-row"><span class="label">Next step:</span><span>${outcome}</span></div>
+      <div class="inspector-rule">${rule}</div>
+      <div class="inspector-hint">Press Step to advance</div>`;
+    panel.style.display = 'block';
+  }
+
+  initCanvas() {
+    const canvas = this.canvas;
+    new ResizeObserver(() => this.renderer.resize()).observe(canvas);
+    canvas.addEventListener('mousedown', e => this.onMouseDown(e));
+    canvas.addEventListener('mousemove', e => this.onMouseMove(e));
+    canvas.addEventListener('mouseup', () => this.onMouseUp());
+    canvas.addEventListener('mouseleave', () => {
+      this.isDragging = false; this.isPanning = false;
+      this.renderer.hoverX = -1; this.renderer.hoverY = -1;
+    });
+    canvas.addEventListener('wheel', e => {
+      e.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      this.renderer.zoom(e.deltaY < 0 ? 1.15 : 0.87, e.clientX - rect.left, e.clientY - rect.top);
+    }, { passive: false });
+
+    let lastTouchDist = 0, lastTouchX = 0, lastTouchY = 0;
+    canvas.addEventListener('touchstart', e => {
+      if (e.touches.length === 2) {
+        lastTouchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        lastTouchX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        lastTouchY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      }
+    });
+    canvas.addEventListener('touchmove', e => {
+      e.preventDefault();
+      if (e.touches.length === 2) {
+        const dist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        const rect = canvas.getBoundingClientRect();
+        this.renderer.zoom(dist / lastTouchDist, cx - rect.left, cy - rect.top);
+        this.renderer.pan(cx - lastTouchX, cy - lastTouchY);
+        lastTouchDist = dist; lastTouchX = cx; lastTouchY = cy;
+      }
+    }, { passive: false });
+    canvas.addEventListener('contextmenu', e => e.preventDefault());
+  }
+
+  getCanvasPos(e) {
+    const rect = this.canvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
+
+  onMouseDown(e) {
+    e.preventDefault();
+    const pos = this.getCanvasPos(e);
+    if (e.button === 1 || e.button === 2) {
+      this.isPanning = true; this.lastPanX = pos.x; this.lastPanY = pos.y; return;
+    }
+    if (this.selectedPattern) {
+      const cell = this.renderer.screenToGrid(pos.x, pos.y);
+      this.grid.placePattern(this.ghostPattern, cell.x, cell.y);
+      this.updateStats(); return;
+    }
+    this.isDragging = true;
+    const cell = this.renderer.screenToGrid(pos.x, pos.y);
+    this.isPainting = e.shiftKey ? false : !this.grid.get(cell.x, cell.y);
+    this.paintCell(cell.x, cell.y);
+    this.showInspector(cell.x, cell.y);
+  }
+
+  onMouseMove(e) {
+    const pos = this.getCanvasPos(e);
+    const cell = this.renderer.screenToGrid(pos.x, pos.y);
+    if (this.isPanning) {
+      this.renderer.pan(pos.x - this.lastPanX, pos.y - this.lastPanY);
+      this.lastPanX = pos.x; this.lastPanY = pos.y; return;
+    }
+    this.renderer.hoverX = cell.x; this.renderer.hoverY = cell.y;
+    if (this.selectedPattern) { this.renderer.ghostX = cell.x; this.renderer.ghostY = cell.y; }
+    if (this.isDragging) {
+      const key = `${cell.x},${cell.y}`;
+      if (this.lastPaintCell !== key) { this.lastPaintCell = key; this.paintCell(cell.x, cell.y); }
+    }
+  }
+
+  onMouseUp() { this.isDragging = false; this.isPanning = false; this.lastPaintCell = null; }
+
+  paintCell(x, y) {
+    if (x < 0 || y < 0 || x >= this.grid.width || y >= this.grid.height) return;
+    this.grid.set(x, y, this.isPainting ? 1 : 0);
+    this.updateStats();
+  }
+
+  loop(ts) {
+    requestAnimationFrame(t => this.loop(t));
+    this.frameCount++;
+    if (ts - this.fpsTime >= 1000) {
+      this.fps = this.frameCount * 1000 / (ts - this.fpsTime);
+      this.frameCount = 0; this.fpsTime = ts;
+      document.getElementById('stat-fps').textContent = this.fps.toFixed(1);
+    }
+    if (this.running && ts - this.lastStep >= 1000 / this.speed) {
+      this.lastStep = ts; this.doStep();
+    }
+    this.renderer.render();
+  }
+}
+
+const app = new App();
+</script>
+</body>
+</html>
