@@ -10,7 +10,7 @@ var shouldContinue = true
 // Initialize the grid with random alive (true) or dead (false) cells
 func initializeGrid() -> [[Bool]] {
     return (0..<height).map { _ in
-        (0..<width).map { _ in Bool.random() && Double.random(in: 0...1) < density }
+        (0..<width).map { _ in Double.random(in: 0...1) < density }
     }
 }
 

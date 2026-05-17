@@ -47,21 +47,25 @@ LaTeX is a **document typesetting system**. Its job is to produce beautiful PDFs
 
 - **`cgol.awk`**: Game of Life in Awk
 - **`cgol.c`**: Game of Life in C
+- **`cgol.cs`**: C# implementation.
 - **`cgol.clj`**: Game of Life in Clojure
 - **`cgol.cob`**: Game of Life in Cobol
 - **`cgol.dart`**: Dart language implementation.
 - **`cgol.erl`**: Erlang implementation of GoL.
 - **`cgol.exs`**: GoL in Elixir.
 - **`cgol.go`**: Implementation using the Go programming language. A version with more features can be found [here](https://github.com/SimonWaldherr/cgolGo). You can find a Version which runs on a Hub75-RGB-LED-Matrix at [github.com/SimonWaldherr/RGB-LED-Matrix](https://github.com/SimonWaldherr/RGB-LED-Matrix).
+- **`cgol.go.wasm.go`**: Go/WebAssembly implementation for the browser.
 - **`cgol.java`**: Java-based Game of Life simulation.
 - **`cgol.jq`**: Game of Life in jq (toroidal grid, random initialization; uses a Bash wrapper to drive the animation loop).
 - **`cgol.js`**: Node.js implementation.
     - there are also three implementations for the browser: [canvas](https://simonwaldherr.github.io/GameOfLife/cgol.js.canvas.html), [webgl](https://simonwaldherr.github.io/GameOfLife/cgol.js.webgl.html) and [wasm](https://simonwaldherr.github.io/GameOfLife/cgol.js.wasm.html) 
+- **`cgol.kt`**: Kotlin implementation.
 - **`cgol.lisp`**: Game of Life in Lisp
 - **`cgol.lua`**: Lua script implementation.
 - **`cgol.lualatex.tex`**: LuaLaTeX to generate a [Game-of-Life-PDF](https://simonwaldherr.github.io/GameOfLife/cgol.lualatex.pdf).
 - **`cgol.ml`**: CGoL in OCaml.
 - **`cgol.nim`**: CGoL in Nim.
+- **`cgol.opencl.c`**: OpenCL implementation with a small C host program.
 - **`cgol.pas`**: Pascal implementation.
 - **`cgol.php`**: PHP implementation.
 - **`cgol.pl`**: Perl language implementation.
@@ -72,8 +76,11 @@ LaTeX is a **document typesetting system**. Its job is to produce beautiful PDFs
 - **`cgol.scad`**: run cgol.scad.sh to generate a Game of Life GIF with OpenSCAD.
 - **`cgol.sh`**: Bash shell script implementation.
 - **`cgol.sql.sh`**: calculate Game of Life with the help of a SQLite database.
+- **`cgol.svg`**: Animated SVG implementation.
 - **`cgol.swift`**: Swift programming language implementation.
 - **`cgol.tcl`**: Tcl (Tool command language) implementation.
+- **`cgol.tcl.tk`**: Tcl/Tk GUI implementation.
+- **`cgol.ts`**: TypeScript implementation.
 - **`cgol.zig`**: Zig implementation.
 - **`stop.sh`**: some implementations can't be stopped with ctrl+c, use this tool in such cases.
 
@@ -87,36 +94,50 @@ Each file contains the necessary logic to run a basic Game of Life simulation. T
 
 ## Running Each Script
 
-To run each script, ensure the necessary runtime or interpreter for the specific language is installed on your system. 
-Each script can be executed directly from the terminal as they contain the necessary [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix)) line to specify the interpreter. 
-Below are the commands to run the scripts in your terminal:
+To run each implementation, ensure the necessary runtime, compiler, or interpreter for the specific language is installed on your system.
+Many scripts can be executed directly from the terminal because they contain a [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix)) line. Others need a compile or browser step.
+Below are the commands to run the implementations in your terminal:
 
 Language | run with        | or
 ---------|-----------------|-----
 **Awk**  | `./cgol.awk`    | `awk -f cgol.awk`
 **C**    | `./cgol.c`      |   
+**C#**   |                 | `mcs -out:/tmp/cgol.exe cgol.cs && mono /tmp/cgol.exe`
 **Clojure** | `./cgol.clj` |  
 **Cobol**|                 | `cobc -x cgol.cob; ./cgol`  
 **Dart** | `./cgol.dart`   | `dart cgol.dart`
 **Erlang** |               | `erlc cgol.erl; erl -noshell -s cgol start -s init stop`
+**Elixir** | `./cgol.exs`  | `elixir cgol.exs`
 **Go**   | `./cgol.go`     | `go run cgol.go`
+**Go WebAssembly** |       | `GOOS=js GOARCH=wasm go build -o cgol.wasm cgol.go.wasm.go`
 **Java** | `./cgol.java`   | `javac cgol.java && java cgol; rm cgol.class; exit`
 **JavaScript (Node.js)**   | `./cgol.js` | `node cgol.js`
+**JavaScript (Browser Canvas)** | | open `cgol.js.canvas.html` in a browser
+**JavaScript (Browser WebGL)** | | open `cgol.js.webgl.html` in a browser
+**JavaScript (Browser WASM)** | | build `cgol.wasm`, then open `cgol.js.wasm.html`
 **jq**   | `./cgol.jq`     | `bash cgol.jq`
+**Kotlin** |               | `kotlinc cgol.kt -include-runtime -d cgol.jar && java -jar cgol.jar`
 **Pascal** | `./cgol.pas`  | `fpc cgol.pas && ./cgol`
 **PHP**  | `./cgol.php`    | `php cgol.php`
 **Lua**  | `./cgol.lua`    | `lua cgol.lua`
+**Lisp** | `./cgol.lisp`  | `sbcl --script cgol.lisp`
 **LuaLaTeX**  |            | `lualatex cgol.lualatex.tex`
-**OCaml** | `./cgol.ml`    | 
+**OCaml** | `./cgol.ml`    | `ocaml cgol.ml`
+**Nim**  | `./cgol.nim`    | `nim r cgol.nim`
+**OpenCL** |               | `clang cgol.opencl.c -framework OpenCL -o cgol.opencl && ./cgol.opencl` on macOS, or `cc cgol.opencl.c -lOpenCL -o cgol.opencl && ./cgol.opencl` on Linux
 **Perl** | `./cgol.pl`     | `perl cgol.pl`
 **Python** | `./cgol.py`   | `python3 cgol.py`
 **R**    | `./cgol.R`      | `Rscript cgol.R`
 **Ruby** | `./cgol.rb`     | `ruby cgol.rb`
 **Rust** | `./cgol.rs`     | `cargo script cgol.rs`
 **Shell/Bash** | `./cgol.sh` | `sh cgol.sh`
-**Swift** | `./cgol.swift` | `swift cgol.swift`
 **SCAD** | `./cgol.scad.sh` | 
 **SQLite** | `./cgol.sql.sh` | 
+**SVG**  |                 | open `cgol.svg` in a browser
+**Swift** | `./cgol.swift` | `swift cgol.swift`
+**Tcl**  | `./cgol.tcl`    | `tclsh cgol.tcl`
+**Tcl/Tk** | `./cgol.tcl.tk` | `wish cgol.tcl.tk`
+**TypeScript** | `./cgol.ts` | `tsc cgol.ts --target es2020 --outDir /tmp/cgol-ts && node /tmp/cgol-ts/cgol.js`
 **Zig**  |                 | `zig run cgol.zig`  
 
 
